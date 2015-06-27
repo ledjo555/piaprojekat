@@ -14,11 +14,13 @@
                 <div id="center">
                     <h:form>
                         <h:panelGrid columns="1" cellpadding="5" >
+                            <p:messages globalOnly="true"/>
                             <h:outputLabel for="name" value="Username:"/>
-                            <p:inputText id="name" required="true" value="#{login.username}"/>
+                            <p:inputText id="name" required="true" value="#{login.username}" />
                             <h:outputLabel value="Password:"/>
                             <p:password required="true" value="#{login.password}"/>
-                            <h:commandButton value="Login" action="#{login.login()}" />
+                            <p:commandButton ajax="false" value="Login" action="#{login.login()}" />
+                            <h:commandLink action="#{login.toRegistracija}" immediate="true" > Registracija </h:commandLink>
                     </h:panelGrid>
                 </h:form>
             </div>

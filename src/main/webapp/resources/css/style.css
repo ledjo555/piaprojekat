@@ -8,12 +8,25 @@ and open the template in the editor.
     Author     : Djole
 */
 
+html,
+body {
+   margin:0;
+   padding:0;
+   height:100%;
+}
+
+#container {
+   min-height:100%;
+   position:relative;
+}
+
 #header{
     height: 12%;
-    background-color: #FFFFF1;
+    background-color: #EBEBFF;
     position: absolute;
     top: 0;
-    width: 99%;
+    z-index: 10;
+    width: 100%;
 }
 
 #headerText{
@@ -28,14 +41,13 @@ and open the template in the editor.
 
 #content{
     position: absolute;
-    top: 100px;
-    height: 500px;
+    height: 99%;
     width: 99%;
 }
 
 #footer{
     height: 10%;
-    background-color: #FFFFF1;
+    background-color: #EBEBFF;
     position: fixed;
     bottom: 0;
     width: 100%;
@@ -44,18 +56,19 @@ and open the template in the editor.
 }
 
 #center{
-    width: 100px;
+    width: 300px;
     height: 100px;
-
     position: absolute;
     top:0;
-    bottom: 0;
+    bottom: 50%;
     left: 0;
-    right: 10%;
+    right: 0;
 
     margin: auto;
 }
 
-
+.ui-widget, .ui-widget .ui-widget {
+    font-size: 90%;
+}
 
 

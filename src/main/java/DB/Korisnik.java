@@ -6,6 +6,7 @@
 package DB;
 
 import java.io.Serializable;
+import java.sql.Blob;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,13 +29,18 @@ public class Korisnik implements Serializable {
     private String prezime;
     private String telefon;
     private String email;
+    private byte[] slika;
     private String odsek;
-    private String god;
+    private String godina;
     private String prosek;
     private String tip;
     private int zahtev;
 
     public Korisnik() {
+        odsek = "";
+        godina = "";
+        prosek = "";
+        tip = "Demonstrator";
     }
 
     public int getId() {
@@ -101,12 +107,12 @@ public class Korisnik implements Serializable {
         this.odsek = odsek;
     }
 
-    public String getGod() {
-        return god;
+    public String getGodina() {
+        return godina;
     }
 
-    public void setGod(String god) {
-        this.god = god;
+    public void setGodina(String godina) {
+        this.godina = godina;
     }
 
     public String getProsek() {
@@ -132,5 +138,15 @@ public class Korisnik implements Serializable {
     public void setZahtev(int zahtev) {
         this.zahtev = zahtev;
     }
+
+    public byte[] getSlika() {
+        return slika;
+    }
+
+    public void setSlika(byte[] slika) {
+        this.slika = slika;
+    }
+    
+    
 
 }

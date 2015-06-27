@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+
+        <ui:composition template="commons/template.xhtml">
+            <ui:define name="content">
+
+                <div id="center">
+                    <h:form enctype="multipart/form-data">
+                        <p:messages globalOnly="true"/>
+                        <h:panelGrid columns="2" cellpadding="5" >
+
+                            <h:outputLabel for="username" value="Username:"/>
+                            <p:inputText id="username" required="true" validatorMessage="AAAA" value="#{login.korisnik.username}"/>
+
+                            <h:outputLabel for="password" value="Password:"/>
+                            <p:password validatorMessage="Field must not be empty." id="password" required="true" value="#{login.korisnik.password}"/>
+
+                            <h:outputLabel for="repeatPassword" value="Ponovljen password:"/>
+                            <p:password id="repeatPassword" required="true" value="#{login.password}"/>
+
+                            <h:outputLabel for="ime" value="Ime:"/>
+                            <p:inputText id="ime" required="true" value="#{login.korisnik.ime}"/>
+
+                            <h:outputLabel for="prezime" value="Prezime:"/>
+                            <p:inputText id="prezime" required="true" value="#{login.korisnik.prezime}"/>
+
+                            <h:outputLabel for="telefon" value="Telefon:"/>
+                            <p:inputText id="telefon" required="true" value="#{login.korisnik.telefon}"/>
+
+                            <h:outputLabel for="email" value="Email:"/>
+                            <p:inputText id="email" required="true"  value="#{login.korisnik.email}"/>
+                            
+                            <h:outputLabel for="slika" value="Slika:"/>
+                            <p:fileUpload value="#{login.file}" mode="simple" />
+
+                            <h:outputLabel for="tip" value="Tip:"/>
+                            <p:selectOneMenu id="tip" value="#{login.korisnik.tip}" effect="fold" editable="true">
+                                <f:selectItem itemLabel="Nastavnik" itemValue="Nastavnik" />
+                                <f:selectItem itemLabel="Demonstrator" itemValue="Demonstrator" />
+                            </p:selectOneMenu>
+
+                            <h:outputLabel for="odsek" value="Odsek(popunjava samo student):"/>
+                            <p:inputText id="odsek" value="#{login.korisnik.odsek}"/>
+
+                            <h:outputLabel for="godina" value="Godina(popunjava samo student):"/>
+                            <p:inputText id="godina" value="#{login.korisnik.godina}"/>
+
+                            <h:outputLabel for="prosek" value="Prosek(popunjava samo student):"/>
+                            <p:inputText id="prosek"  value="#{login.korisnik.prosek}"/>
+
+                            <p:commandButton ajax="false" value="Back" immediate="true" action="#{login.logout()}" />
+                            <p:commandButton ajax="false" value="Register" action="#{login.registracija()}" />
+                        </h:panelGrid>
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+
+</html>
