@@ -71,14 +71,31 @@ body {
     font-size: 90%;
 }
 
+.ui-orderlist .ui-orderlist-list {
+    height: 140px !important;
+    width: 200px !important;
+}
+
 #nastavnikHomeCenter{
     width: 600px;
     height: 100px;
     position: absolute;
     top:0;
     bottom: 50%;
-    left: 0;
+    left: 40%;
     right: 0;
+
+    margin: auto;
+}
+
+#nastavnikHomeSearch{
+    width: 600px;
+    height: 100px;
+    position: absolute;
+    top:0;
+    bottom: 70%;
+    left: 0;
+    right: 40%;
 
     margin: auto;
 }

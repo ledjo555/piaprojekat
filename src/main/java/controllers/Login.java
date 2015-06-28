@@ -65,6 +65,9 @@ public class Login {
 
 //        InputStream in = new ByteArrayInputStream(korisnik.getSlika());
 //        slika = new DefaultStreamedContent(in, "image/jpeg");
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.getExternalContext().getSessionMap().put("user", korisnik);
+
         if (korisnik.getTip().equals("Demonstrator")) {
             return "restricted/demonstrator?faces-redirect=true";
         } else if (korisnik.getTip().equals("Nastavnik")) {

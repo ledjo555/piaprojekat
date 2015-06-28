@@ -19,7 +19,7 @@ import javax.persistence.Table;
  * @author Djole
  */
 @Entity
-@Table(name = "korisnik")
+@Table(name = "angazovanje")
 public class Angazovanje  implements Serializable{
     
     @Id

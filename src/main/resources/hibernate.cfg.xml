@@ -12,6 +12,8 @@
         <property name="current_session_context_class">thread</property>
         
         <mapping class="DB.Korisnik"/>
+        <mapping class="DB.Predmet"/>
+        <mapping class="DB.Angazovanje"/>
     
     </session-factory>
 </hibernate-configuration>

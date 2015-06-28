@@ -13,7 +13,7 @@
             <ui:define name="content">
 
                 <div id="nastavnikHomeCenter">
-                    <h:form>
+                    <h:form id="lista">
                         <p:dataTable var="dem" value="#{nastavnik.lista}" paginator="true" rows="5" paginatorPosition="bottom">
 
                             <p:column>
@@ -47,15 +47,34 @@
 
                                 </p:commandButton>
                             </p:column>
-
-
                         </p:dataTable>  
-                        <h:panelGrid columns="1">
+                    </h:form>
+                </div>
+                <div id="nastavnikHomeSearch">
+                    <h:form id="search">
+                        <h:panelGrid id="prviPanel" columns="1">
                             <p:spacer/>
                             <p:spacer/>
                             <p:spacer/>
-                            <p:inputText />
+                            <h:panelGrid columns="4" >
+                                <h:outputText value="Ime" />
+                                <p:inputText value="#{nastavnik.searchIme}" />
+                                <h:outputText value="Prezime" />
+                                <p:inputText value="#{nastavnik.searchPrezime}" />
+                            </h:panelGrid>
+                            <p:spacer/>
+                            <p:selectOneRadio  id="console" value="#{nastavnik.filter}">
+                                <p:ajax event="change" update="search:drugiPanel"/>
+                                <f:selectItem  itemLabel="Svi demonstratori" itemValue="1" />
+                                <f:selectItem itemLabel="Moji demonstratori" itemValue="2" />
+                                <f:selectItem itemLabel="Moji na odredjenim predmetima" itemValue="3" />
+                            </p:selectOneRadio>
+                            <p:spacer/>
+                            <h:panelGrid id="drugiPanel">
+                            <p:pickList widgetVar="predmeti"   id="pickList"  rendered="#{nastavnik.filter == '3'}" value="#{nastavnik.predmeti}"  var="predmet" itemLabel="#{predmet}" itemValue="#{predmet}" />
+                            </h:panelGrid>
                         </h:panelGrid>
+                        <p:commandButton action="#{nastavnik.updateLista()}" value="Filter" update=":lista"/>
                     </h:form>
                 </div>
             </ui:define> 
