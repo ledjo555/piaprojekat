@@ -102,6 +102,7 @@
             <groupId>org.primefaces</groupId>
             <artifactId>primefaces</artifactId>
             <version>3.3</version>
+            <type>jar</type>
         </dependency>
  
         <!-- JSF 2 -->

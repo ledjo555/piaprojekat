@@ -71,4 +71,16 @@ body {
     font-size: 90%;
 }
 
+#nastavnikHomeCenter{
+    width: 600px;
+    height: 100px;
+    position: absolute;
+    top:0;
+    bottom: 50%;
+    left: 0;
+    right: 0;
+
+    margin: auto;
+}
+
 

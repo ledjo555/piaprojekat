@@ -7,8 +7,6 @@ package controllers;
 
 import DB.DBFactory;
 import DB.Korisnik;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.faces.application.FacesMessage;
@@ -19,7 +17,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
 
@@ -33,9 +30,9 @@ public class Login {
 
     private String username;
     private String password;
+    private String ponovljenPassword;
     private Session session;
     private Korisnik korisnik;
-    private String message = "nesto";
     private UploadedFile file;
     private StreamedContent slika;
 
@@ -46,17 +43,7 @@ public class Login {
         session = DBFactory.getSessionFactory().openSession();
         session.beginTransaction();
 
-        MessageDigest messageDigest = null;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException ex) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Internal error", "Contact admin."));
-            return "";
-        }
-
-        messageDigest.update(password.getBytes());
-        String encryptedString = new String(messageDigest.digest());
-        password = encryptedString;
+        password = digestPassword(password);
 
         Query q = session.createQuery("from Korisnik where username = :u and password = :p");
         q.setParameter("u", username);
@@ -68,19 +55,23 @@ public class Login {
         }
         korisnik = (Korisnik) q.list().get(0);
         session.close();
-        
-        if(korisnik.getZahtev() == 0){
+
+        if (korisnik.getZahtev() == 0) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Vas nalog jos uvek nije aktivan", "Contact admin."));
             korisnik = null;
             password = "";
             return "";
         }
 
-        InputStream in = new ByteArrayInputStream(korisnik.getSlika());
-        slika = new DefaultStreamedContent(in, "image/jpeg");
-        
-        return "restricted/demonstrator?faces-redirect=true";
-
+//        InputStream in = new ByteArrayInputStream(korisnik.getSlika());
+//        slika = new DefaultStreamedContent(in, "image/jpeg");
+        if (korisnik.getTip().equals("Demonstrator")) {
+            return "restricted/demonstrator?faces-redirect=true";
+        } else if (korisnik.getTip().equals("Nastavnik")) {
+            return "restricted/nastavnik?faces-redirect=true";
+        } else {
+            return "restricted/administrator?faces-redirect=true";
+        }
     }
 
     public String toRegistracija() {
@@ -112,16 +103,7 @@ public class Login {
             return "";
         }
 
-        MessageDigest messageDigest = null;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException ex) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Internal error", "Contact admin."));
-            return "";
-        }
-
-        messageDigest.update(korisnik.getPassword().getBytes());
-        String encryptedString = new String(messageDigest.digest());
+        String encryptedString = digestPassword(korisnik.getPassword());
 
         korisnik.setPassword(encryptedString);
 //        try {
@@ -131,7 +113,7 @@ public class Login {
 //            return "";
 //        }
         korisnik.setSlika(file.getContents());
-        
+
         session.save(korisnik);
         session.getTransaction().commit();
         session.close();
@@ -139,6 +121,52 @@ public class Login {
         username = "";
         korisnik = null;
         return "/faces/index?faces-redirect=true";
+    }
+
+    public String toPromenaLozinke() {
+        return "/faces/promenaLozinke?faces-redirect=true";
+    }
+
+    public String promenaLozinke() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        password = digestPassword(password);
+
+        Query q = session.createQuery("from Korisnik where username = :u and password = :p");
+        q.setParameter("u", username);
+        q.setParameter("p", password);
+        if (q.list().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Wrong username or password", "Contact admin."));
+            password = "";
+            return "";
+        }
+
+        ponovljenPassword = digestPassword(ponovljenPassword);
+
+        korisnik = (Korisnik) q.list().get(0);
+        korisnik.setPassword(ponovljenPassword);
+        session.update(korisnik);
+        session.getTransaction().commit();
+
+        session.close();
+
+        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        return "/faces/index?faces-redirect=true";
+    }
+
+    private String digestPassword(String password) {
+        MessageDigest messageDigest = null;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Internal error", "Contact admin."));
+            return "";
+        }
+
+        messageDigest.update(password.getBytes());
+        String encryptedString = new String(messageDigest.digest());
+        return encryptedString;
     }
 
     public String logout() {
@@ -170,14 +198,6 @@ public class Login {
         this.korisnik = korisnik;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public UploadedFile getFile() {
         return file;
     }
@@ -194,5 +214,12 @@ public class Login {
         this.slika = slika;
     }
 
-    
+    public String getPonovljenPassword() {
+        return ponovljenPassword;
+    }
+
+    public void setPonovljenPassword(String ponovljenPassword) {
+        this.ponovljenPassword = ponovljenPassword;
+    }
+
 }

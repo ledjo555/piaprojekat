@@ -20,7 +20,10 @@
                             <h:outputLabel value="Password:"/>
                             <p:password required="true" value="#{login.password}"/>
                             <p:commandButton ajax="false" value="Login" action="#{login.login()}" />
+                            <h:panelGrid columns="2" cellpadding="5" >
                             <h:commandLink action="#{login.toRegistracija}" immediate="true" > Registracija </h:commandLink>
+                            <h:commandLink action="#{login.toPromenaLozinke}" immediate="true" > Promena lozinke </h:commandLink>
+                            </h:panelGrid>
                     </h:panelGrid>
                 </h:form>
             </div>
