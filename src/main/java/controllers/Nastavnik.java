@@ -84,7 +84,7 @@ public class Nastavnik {
         } else if (filter.equals("2")) {
 
             lista.clear();
-            Query q = session.createQuery("from Korisnik k, Angazovanje a where tip = :t and k.id = a.id_korisnik");
+            Query q = session.createQuery("from Korisnik k, Angazovanje a where tip = :t and ime like '%" + searchIme + "%' and prezime like '%" + searchPrezime + "%' and k.id = a.id_korisnik");
             q.setParameter("t", "Demonstrator");
             Iterator<Object> iter = q.list().iterator();
 
@@ -109,20 +109,33 @@ public class Nastavnik {
 
         } else {
             lista.clear();
-            Query q = session.createQuery("from Korisnik k, Angazovanje a where tip = :t and k.id = a.id_korisnik");
+            Query q = session.createQuery("from Korisnik k, Angazovanje a where tip = :t and ime like '%" + searchIme + "%' and prezime like '%" + searchPrezime + "%' and k.id = a.id_korisnik");
             q.setParameter("t", "Demonstrator");
             Iterator<Object> iter = q.list().iterator();
 
-            Query qu = session.createQuery("from Angazovanje a where a.id_korisnik = '" + nastavnik.getId() + "'");
-            List<Angazovanje> tempAngazovanje = qu.list();
-            
+            Query qu = session.createQuery("from Angazovanje a, Predmet p where a.id_korisnik = '" + nastavnik.getId() + "' and p.id = a.id_predmet");
+
+            Iterator<Object> iterator = qu.list().iterator();
+
             List<String> tempTarget = predmeti.getTarget();
-            
-//            for(Angazovanje an:tempAngazovanje){
-//                for(String s:tempTarget){
-//                    if
-//                }
-//            }
+
+            List<Angazovanje> tempAngazovanje = new ArrayList<>();
+
+            while (iterator.hasNext()) {
+                Object[] obj = (Object[]) iterator.next();
+                Angazovanje ang = (Angazovanje) obj[0];
+                Predmet p = (Predmet) obj[1];
+                boolean flag = false;
+                for (String s : tempTarget) {
+                    if (p.getAkronim().equals(s)) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag) {
+                    tempAngazovanje.add(ang);
+                }
+            }
 
             while (iter.hasNext()) {
                 Object[] obj = (Object[]) iter.next();

@@ -74,7 +74,7 @@
                             <p:pickList widgetVar="predmeti"   id="pickList"  rendered="#{nastavnik.filter == '3'}" value="#{nastavnik.predmeti}"  var="predmet" itemLabel="#{predmet}" itemValue="#{predmet}" />
                             </h:panelGrid>
                         </h:panelGrid>
-                        <p:commandButton action="#{nastavnik.updateLista()}" value="Filter" update=":lista"/>
+                        <p:commandButton ajax="false" action="#{nastavnik.updateLista()}" value="Filter" update=":lista"/>
                     </h:form>
                 </div>
             </ui:define> 
