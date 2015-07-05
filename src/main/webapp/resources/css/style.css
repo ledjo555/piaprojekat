@@ -39,6 +39,25 @@ body {
     line-height: 70px;
 }
 
+#headerMenu{
+    /*background-color: blue;*/
+    position: absolute;
+    float: bottom;
+    top: 55px;
+    left:30px;
+    width: 500px;
+    height: 25px;
+}
+
+.ui-menubar  {
+    border: 1px solid #aed0ea !important;
+    /*background: #74b2e2 url(../images/myImage.png) 50% 50% repeat-x !important;*/
+    background-color: #D4D4E6;
+    height: 25px;
+    color: #ffffff !important;
+    font-weight: bolder !important;
+}
+
 #content{
     position: absolute;
     height: 99%;
@@ -100,4 +119,8 @@ body {
     margin: auto;
 }
 
+#slika{
+    height: 10px;
+    width: 10px
+}
 
