@@ -14,7 +14,22 @@
 
                 <div id="center">
                     <h:form>
-                        <p:graphicImage width="100" height="100" value="#{login.slika}" />
+                        <h:panelGrid columns="2" cellpadding="10">
+                            <h:outputLabel value="Ime: " />
+                            <h:outputLabel value="#{login.korisnik.ime}" />
+
+                            <h:outputLabel value="Prezime: " />
+                            <h:outputLabel value="#{login.korisnik.prezime}" />
+
+                            <h:outputLabel value="Telefon: " />
+                            <h:outputLabel value="#{login.korisnik.telefon}" />
+
+                            <h:outputLabel value="Email: " />
+                            <h:outputLabel value="#{login.korisnik.email}" />
+
+                            <h:outputLabel value="Slika: " />
+                            <p:graphicImage width="150" height="150" value="#{login.slika}" />
+                        </h:panelGrid>
                     </h:form>
                 </div>
             </ui:define>

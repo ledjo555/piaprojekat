@@ -17,10 +17,13 @@
                     </h:form>
                 </div>
                 <div id="headerMenu">
+                    <h:form>
                     <p:megaMenu>
-                        <p:menuitem value="TV.2.1" url="#" />
-
+                        <p:menuitem value="Pocetna" url="nastavnik.xhtml" />
+                        <p:menuitem value="Unos laba" url="nastavnikUnosLab.xhtml" />
+                        <p:menuitem value="Arhiva lab" action="#{nastavnik.toArhiva}"/>
                     </p:megaMenu>
+                        </h:form>
                 </div>
         </c:if>
         </ui:composition>

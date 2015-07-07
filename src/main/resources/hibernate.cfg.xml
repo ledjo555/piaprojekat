@@ -14,6 +14,8 @@
         <mapping class="DB.Korisnik"/>
         <mapping class="DB.Predmet"/>
         <mapping class="DB.Angazovanje"/>
+        <mapping class="DB.Tip_aktivnosti"/>
+        <mapping class="DB.Lab"/>
     
     </session-factory>
 </hibernate-configuration>

@@ -8,8 +8,11 @@ package controllers;
 import DB.Angazovanje;
 import DB.DBFactory;
 import DB.Korisnik;
+import DB.Lab;
 import DB.Predmet;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -33,6 +36,9 @@ public class Nastavnik {
     private DualListModel<String> predmeti;
     private List<String> source;
     private List<String> target;
+    private List<Lab> labovi;
+
+    private String izabranPredmetLab;
 
     private String searchIme;
     private String searchPrezime;
@@ -157,6 +163,20 @@ public class Nastavnik {
         session.close();
     }
 
+    public String toArhiva() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        labovi = new ArrayList<>();
+
+        Query query_lab = session.createQuery("from Lab");
+        labovi = query_lab.list();
+
+        session.close();
+
+        return "nastavnikArhivaLab?faces-redirect=true";
+    }
+
     public String toDetaljnije(Korisnik kor) {
         demonstrator = kor;
         return "nastavnikDemonstratorDetalji?faces-redirect=true";
@@ -232,6 +252,22 @@ public class Nastavnik {
 
     public void setSearchPrezime(String searchPrezime) {
         this.searchPrezime = searchPrezime;
+    }
+
+    public String getIzabranPredmetLab() {
+        return izabranPredmetLab;
+    }
+
+    public void setIzabranPredmetLab(String izabranPredmetLab) {
+        this.izabranPredmetLab = izabranPredmetLab;
+    }
+
+    public List<Lab> getLabovi() {
+        return labovi;
+    }
+
+    public void setLabovi(List<Lab> labovi) {
+        this.labovi = labovi;
     }
 
 }
