@@ -21,10 +21,32 @@
                     <h:form id="search">
                         <h:panelGrid columns="2" cellpadding="10" >
                             <h:outputLabel value="Predmet: " />
-                            <p:selectOneMenu value="#{nastavnik.izabranPredmetLab}"  >
+                            <p:selectOneMenu value="#{nastavnik.noviLab.predmet}"  >
+                                <p:ajax event="change" update=":demonstratori"/>
                                 <f:selectItem itemLabel="Izaberite predmet" itemValue="" />
                                 <f:selectItems value="#{nastavnik.source}" />
                             </p:selectOneMenu>
+
+                            <h:outputLabel value="Naziv lab vezbe: " />
+                            <p:inputText value="#{nastavnik.noviLab.naziv_lab}" />
+
+                            <h:outputLabel value="Datum i vreme od: " />
+                            <p:calendar pattern="MM/dd/yyyy HH:mm:ss" value="#{nastavnik.noviLab.vreme_od}" />
+
+                            <h:outputLabel value="Datum i vreme do: " />
+                            <p:calendar pattern="MM/dd/yyyy HH:mm:ss" value="#{nastavnik.noviLab.vreme_do}" />
+
+                            <h:outputLabel value="Mesto odrzavanja: " />
+                            <p:inputText value="#{nastavnik.noviLab.mesto_lab}" />
+
+                            <p:selectOneMenu value="#{nastavnik.noviLab.tip}"  >
+                                <f:selectItem itemLabel="Izaberite tip" itemValue="" />
+                                <f:selectItems value="#{nastavnik.tipoviAktivnosti}" />
+                            </p:selectOneMenu>
+
+                            <h:outputLabel value="Maksimalan broj demonstratora: " />
+                            <p:inputText value="#{nastavnik.noviLab.max_br}" />
+
                         </h:panelGrid>
                     </h:form>
                 </div>

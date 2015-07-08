@@ -33,14 +33,13 @@ public class Lab implements Serializable {
     private Timestamp vreme_od;
     private Timestamp vreme_do;
     private String mesto_lab;
-    private int id_tip;
+    private String tip;
     private int max_br;
     private String demonstratori;
     private int zakljuceno;
 
     public Lab() {
-        predmet = naziv_lab = mesto_lab = demonstratori = "bla";
-        id_tip = max_br = zakljuceno = 1;
+        zakljuceno = 0;
     }
 
     public int getId() {
@@ -91,12 +90,12 @@ public class Lab implements Serializable {
         this.mesto_lab = mesto_lab;
     }
 
-    public int getId_tip() {
-        return id_tip;
+    public String getTip() {
+        return tip;
     }
 
-    public void setId_tip(int id_tip) {
-        this.id_tip = id_tip;
+    public void setTip(String tip) {
+        this.tip = tip;
     }
 
     public int getMax_br() {

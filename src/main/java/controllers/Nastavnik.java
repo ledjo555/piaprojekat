@@ -10,9 +10,8 @@ import DB.DBFactory;
 import DB.Korisnik;
 import DB.Lab;
 import DB.Predmet;
+import DB.Tip_aktivnosti;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -39,6 +38,9 @@ public class Nastavnik {
     private List<Lab> labovi;
 
     private String izabranPredmetLab;
+    private List<String> tipoviAktivnosti;
+    
+    private Lab noviLab;
 
     private String searchIme;
     private String searchPrezime;
@@ -162,15 +164,42 @@ public class Nastavnik {
 
         session.close();
     }
+    
+    public String toUnosLab(){
+        noviLab = new Lab();
+        tipoviAktivnosti = new ArrayList<>();
+        
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+        
+        Query q = session.createQuery("from Tip_aktivnosti");
+        List<Tip_aktivnosti> aktivnosti = q.list();
+        
+        for(Tip_aktivnosti t: aktivnosti){
+            tipoviAktivnosti.add(t.getNaziv());
+        }
+        
+        return "nastavnikUnosLab?faces-redirect=true";
+    }
 
     public String toArhiva() {
         session = DBFactory.getSessionFactory().openSession();
         session.beginTransaction();
 
         labovi = new ArrayList<>();
+        List<Lab> temp_labovi = new ArrayList<>();
 
         Query query_lab = session.createQuery("from Lab");
-        labovi = query_lab.list();
+        temp_labovi = query_lab.list();
+        
+        for(Lab l:temp_labovi){
+            for(String s:source){
+                if(l.getPredmet().equals(s)){
+                    labovi.add(l);
+                    break;
+                }
+            }
+        }
 
         session.close();
 
@@ -269,5 +298,23 @@ public class Nastavnik {
     public void setLabovi(List<Lab> labovi) {
         this.labovi = labovi;
     }
+
+    public Lab getNoviLab() {
+        return noviLab;
+    }
+
+    public void setNoviLab(Lab noviLab) {
+        this.noviLab = noviLab;
+    }
+
+    public List<String> getTipoviAktivnosti() {
+        return tipoviAktivnosti;
+    }
+
+    public void setTipoviAktivnosti(List<String> tipoviAktivnosti) {
+        this.tipoviAktivnosti = tipoviAktivnosti;
+    }
+    
+    
 
 }
