@@ -11,7 +11,9 @@ import DB.Korisnik;
 import DB.Lab;
 import DB.Predmet;
 import DB.Tip_aktivnosti;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -36,11 +38,13 @@ public class Nastavnik {
     private List<String> source;
     private List<String> target;
     private List<Lab> labovi;
+    private DualListModel<Korisnik> unosLabDemonstratori;
 
     private String izabranPredmetLab;
     private List<String> tipoviAktivnosti;
-    
+
     private Lab noviLab;
+    private Date datum_od, datum_do;
 
     private String searchIme;
     private String searchPrezime;
@@ -164,22 +168,82 @@ public class Nastavnik {
 
         session.close();
     }
-    
-    public String toUnosLab(){
+
+    public String toUnosLab() {
         noviLab = new Lab();
         tipoviAktivnosti = new ArrayList<>();
-        
+
         session = DBFactory.getSessionFactory().openSession();
         session.beginTransaction();
-        
+
         Query q = session.createQuery("from Tip_aktivnosti");
         List<Tip_aktivnosti> aktivnosti = q.list();
-        
-        for(Tip_aktivnosti t: aktivnosti){
+
+        for (Tip_aktivnosti t : aktivnosti) {
             tipoviAktivnosti.add(t.getNaziv());
         }
-        
+
+        unosLabDemonstratori = new DualListModel<>();
+        List<Korisnik> sourceKor = new ArrayList<>();
+        List<Korisnik> targetKor = new ArrayList<>();
+        unosLabDemonstratori.setSource(sourceKor);
+        unosLabDemonstratori.setTarget(targetKor);
+
         return "nastavnikUnosLab?faces-redirect=true";
+    }
+
+    public void unosLabListaDemonstratori() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        Query q = session.createQuery("from Korisnik k, Angazovanje a where tip = :t and k.id = a.id_korisnik");
+        q.setParameter("t", "Demonstrator");
+        Iterator<Object> iter = q.list().iterator();
+
+        Query qu = session.createQuery("from Predmet p where p.akronim = '" + noviLab.getPredmet() + "'");
+
+        Predmet p = (Predmet) qu.list().get(0);
+        List<Korisnik> sourceKor = new ArrayList<>();
+        List<Korisnik> targetKor = new ArrayList<>();
+
+        while (iter.hasNext()) {
+            Object[] obj = (Object[]) iter.next();
+            Korisnik k = (Korisnik) obj[0];
+            Angazovanje ang = (Angazovanje) obj[1];
+            if (ang.getId_predmet() == p.getId()) {
+                sourceKor.add(k);
+            }
+        }
+        unosLabDemonstratori.setSource(sourceKor);
+        unosLabDemonstratori.setTarget(targetKor);
+        session.close();
+    }
+
+    public void napraviLab() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        noviLab.setVreme_od(new Timestamp(datum_od.getTime()));
+        noviLab.setVreme_do(new Timestamp(datum_do.getTime()));
+
+        List<Korisnik> temp = unosLabDemonstratori.getTarget();
+//        session.get
+        StringBuilder sb = new StringBuilder();
+        boolean flag = false;
+        for (Korisnik k : temp) {
+            if (flag) {
+                sb.append(",");
+            }
+            sb.append(k.getIme());
+            sb.append(" ");
+            sb.append(k.getPrezime());
+            flag = true;
+        }
+        noviLab.setDemonstratori(sb.toString());
+        
+        session.save(noviLab);
+        session.getTransaction().commit();
+        session.close();
     }
 
     public String toArhiva() {
@@ -191,10 +255,10 @@ public class Nastavnik {
 
         Query query_lab = session.createQuery("from Lab");
         temp_labovi = query_lab.list();
-        
-        for(Lab l:temp_labovi){
-            for(String s:source){
-                if(l.getPredmet().equals(s)){
+
+        for (Lab l : temp_labovi) {
+            for (String s : source) {
+                if (l.getPredmet().equals(s)) {
                     labovi.add(l);
                     break;
                 }
@@ -314,7 +378,29 @@ public class Nastavnik {
     public void setTipoviAktivnosti(List<String> tipoviAktivnosti) {
         this.tipoviAktivnosti = tipoviAktivnosti;
     }
-    
-    
+
+    public DualListModel<Korisnik> getUnosLabDemonstratori() {
+        return unosLabDemonstratori;
+    }
+
+    public void setUnosLabDemonstratori(DualListModel<Korisnik> unosLabDemonstratori) {
+        this.unosLabDemonstratori = unosLabDemonstratori;
+    }
+
+    public Date getDatum_od() {
+        return datum_od;
+    }
+
+    public void setDatum_od(Date datum_od) {
+        this.datum_od = datum_od;
+    }
+
+    public Date getDatum_do() {
+        return datum_do;
+    }
+
+    public void setDatum_do(Date datum_do) {
+        this.datum_do = datum_do;
+    }
 
 }

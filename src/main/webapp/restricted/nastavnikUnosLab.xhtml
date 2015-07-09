@@ -11,18 +11,13 @@
 
         <ui:composition template="/commons/template.xhtml">
             <ui:define name="content">
-
-                <div id="nastavnikHomeCenter">
-                    <h:form id="lista">
-
-                    </h:form>
-                </div>
-                <div id="nastavnikHomeSearch">
-                    <h:form id="search">
+                <h:form id="forma">
+                    <div id="nastavnikHomeSearch">
+                        <!--<h:form id="search">-->
                         <h:panelGrid columns="2" cellpadding="10" >
                             <h:outputLabel value="Predmet: " />
                             <p:selectOneMenu value="#{nastavnik.noviLab.predmet}"  >
-                                <p:ajax event="change" update=":demonstratori"/>
+                                <p:ajax listener="#{nastavnik.unosLabListaDemonstratori}" update="forma:demoni" event="change"/>
                                 <f:selectItem itemLabel="Izaberite predmet" itemValue="" />
                                 <f:selectItems value="#{nastavnik.source}" />
                             </p:selectOneMenu>
@@ -31,14 +26,15 @@
                             <p:inputText value="#{nastavnik.noviLab.naziv_lab}" />
 
                             <h:outputLabel value="Datum i vreme od: " />
-                            <p:calendar pattern="MM/dd/yyyy HH:mm:ss" value="#{nastavnik.noviLab.vreme_od}" />
+                            <p:calendar pattern="MM/dd/yyyy HH:mm:ss" value="#{nastavnik.datum_od}" />
 
                             <h:outputLabel value="Datum i vreme do: " />
-                            <p:calendar pattern="MM/dd/yyyy HH:mm:ss" value="#{nastavnik.noviLab.vreme_do}" />
+                            <p:calendar pattern="MM/dd/yyyy HH:mm:ss" value="#{nastavnik.datum_do}" />
 
                             <h:outputLabel value="Mesto odrzavanja: " />
                             <p:inputText value="#{nastavnik.noviLab.mesto_lab}" />
 
+                            <h:outputLabel value="Tip aktivnosti: " />
                             <p:selectOneMenu value="#{nastavnik.noviLab.tip}"  >
                                 <f:selectItem itemLabel="Izaberite tip" itemValue="" />
                                 <f:selectItems value="#{nastavnik.tipoviAktivnosti}" />
@@ -48,8 +44,20 @@
                             <p:inputText value="#{nastavnik.noviLab.max_br}" />
 
                         </h:panelGrid>
-                    </h:form>
-                </div>
+
+                        <!--</h:form>-->
+                    </div>
+                    <div id="nastavnikHomeCenter">
+                        <!--<h:form id="lista">-->
+                        <h:panelGrid id="demoni">
+                            <p:pickList widgetVar="demonstratori"   id="pickList"  value="#{nastavnik.unosLabDemonstratori}"  var="demon" itemLabel="#{demon}" itemValue="#{demon}" />
+                        </h:panelGrid>
+                        <!--</h:form>-->
+                    </div>
+                    <div id="unosLabDugme">
+                        <p:commandButton ajax="false" value="Napravi lab" action="#{nastavnik.napraviLab()}" />
+                    </div>
+                </h:form>
             </ui:define> 
         </ui:composition>
 
