@@ -52,18 +52,18 @@
                                 </f:facet>
                                  <h:outputText value="#{lab.tip}" />
                             </p:column>
-                            <p:column width="60">
-                                <f:facet name="header">
-                                    <h:outputText value="Max broj" />
-                                </f:facet>
-                                 <h:outputText value="#{lab.max_br}" />
+                            <p:column style="width:32px">
+                                <p:commandButton 
+                                    icon="ui-icon ui-icon-check" value="zakljuci" action="#{nastavnik.zakljuciLab(lab)}" update=":lista">
+                                </p:commandButton>
                             </p:column>
-                            <p:column width="400">
-                                <f:facet name="header">
-                                    <h:outputText value="Demonstratori" />
-                                </f:facet>
-                                 <h:outputText value="#{lab.demonstratori}" />
+                            <p:column style="width:32px">
+                                <p:commandButton 
+                                    icon="ui-icon ui-icon-pencil" value="izmeni" action="#{nastavnik.toZakljuciLabEdit(lab)}">
+                                </p:commandButton>
                             </p:column>
+                            
+                            
                         </p:dataTable>  
                     </h:form>
                 </div>

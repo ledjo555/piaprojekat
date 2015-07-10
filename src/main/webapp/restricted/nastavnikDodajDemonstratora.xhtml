@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+
+        <ui:composition template="/commons/template.xhtml">
+            <ui:define name="content">
+                <h:form id="forma">
+                    <div id="nastavnikHomeSearch">
+                        <p:messages globalOnly="true"/>
+                        <!--<h:form id="search">-->
+                        <h:panelGrid columns="2" cellpadding="10" >
+                            <h:outputLabel value="Predmet: " />
+                            <p:selectOneMenu value="#{nastavnik.novDemonstratorPredmet}" required="true"  >
+                                <p:ajax listener="#{nastavnik.dodajDemonstratoraUpdateLista}" update="forma:demoni" event="change"/>
+                                <f:selectItem itemLabel="Izaberite predmet" itemValue="" />
+                                <f:selectItems value="#{nastavnik.source}" />
+                            </p:selectOneMenu>
+                            
+                            <h:outputLabel value="Demonstrator: " />
+                            <h:panelGrid id="demoni">
+                            <p:selectOneMenu value="#{nastavnik.noviLab.predmet}" required="true"  >
+                                <f:selectItem itemLabel="Izaberite demonstratora" itemValue="" />
+                                <f:selectItems value="#{nastavnik.dodajDemonstratoraLista}" />
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+
+                        </h:panelGrid>
+                        <p:commandButton ajax="false" value="Dodaj demonstratora" action="#{nastavnik.napraviLab()}" />
+
+                        <!--</h:form>-->
+                    </div>
+                    <div id="nastavnikHomeCenter">
+                        <!--<h:form id="lista">-->
+                        
+                        <!--</h:form>-->
+                    </div>
+                </h:form>
+            </ui:define> 
+        </ui:composition>
+
+    </h:body>
+
+</html>

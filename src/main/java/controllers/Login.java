@@ -178,6 +178,7 @@ public class Login {
 
     public String logout() {
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Uspesno ste se izlogovali", "User logout."));
         return "/faces/index?faces-redirect=true";
     }
 

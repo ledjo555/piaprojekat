@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -38,10 +39,17 @@ public class Nastavnik {
     private List<String> source;
     private List<String> target;
     private List<Lab> labovi;
-    private DualListModel<Korisnik> unosLabDemonstratori;
+    private DualListModel<String> unosLabDemonstratori;
+    private List<Korisnik> unosLabSourceDemonstratori;
 
     private String izabranPredmetLab;
     private List<String> tipoviAktivnosti;
+
+    private Lab zakljucivanjeLabEdit;
+    
+    private String novDemonstratorPredmet;
+    private String novDemonstratorIme;
+    private List<String> dodajDemonstratoraLista;
 
     private Lab noviLab;
     private Date datum_od, datum_do;
@@ -184,10 +192,9 @@ public class Nastavnik {
         }
 
         unosLabDemonstratori = new DualListModel<>();
-        List<Korisnik> sourceKor = new ArrayList<>();
-        List<Korisnik> targetKor = new ArrayList<>();
-        unosLabDemonstratori.setSource(sourceKor);
-        unosLabDemonstratori.setTarget(targetKor);
+        unosLabSourceDemonstratori = new ArrayList<>();
+        datum_od = null;
+        datum_do = null;
 
         return "nastavnikUnosLab?faces-redirect=true";
     }
@@ -203,15 +210,19 @@ public class Nastavnik {
         Query qu = session.createQuery("from Predmet p where p.akronim = '" + noviLab.getPredmet() + "'");
 
         Predmet p = (Predmet) qu.list().get(0);
-        List<Korisnik> sourceKor = new ArrayList<>();
-        List<Korisnik> targetKor = new ArrayList<>();
+        List<String> sourceKor = new ArrayList<>();
+        List<String> targetKor = new ArrayList<>();
+
+        unosLabSourceDemonstratori.clear();
 
         while (iter.hasNext()) {
             Object[] obj = (Object[]) iter.next();
             Korisnik k = (Korisnik) obj[0];
             Angazovanje ang = (Angazovanje) obj[1];
             if (ang.getId_predmet() == p.getId()) {
-                sourceKor.add(k);
+                unosLabSourceDemonstratori.add(k);
+                String s = k.getIme() + " " + k.getPrezime() + " " + k.getOdsek() + " " + k.getGodina() + ". godina";
+                sourceKor.add(s);
             }
         }
         unosLabDemonstratori.setSource(sourceKor);
@@ -226,24 +237,50 @@ public class Nastavnik {
         noviLab.setVreme_od(new Timestamp(datum_od.getTime()));
         noviLab.setVreme_do(new Timestamp(datum_do.getTime()));
 
-        List<Korisnik> temp = unosLabDemonstratori.getTarget();
+        List<String> temp = unosLabDemonstratori.getTarget();
 //        session.get
         StringBuilder sb = new StringBuilder();
         boolean flag = false;
-        for (Korisnik k : temp) {
+        for (String s : temp) {
             if (flag) {
                 sb.append(",");
             }
-            sb.append(k.getIme());
+            String[] niz = s.split(" ");
+            String tempIme = niz[0];
+            String tempPrezime = niz[1];
+            String tempOdsek = niz[2];
+            String tempGodina = niz[3];
+            Korisnik korisnikTemp;
+            for (Korisnik k : unosLabSourceDemonstratori) {
+                if (k.getIme().equals(tempIme) && k.getPrezime().equals(tempPrezime) && k.getOdsek().equals(tempOdsek) && k.getGodina().equals(tempGodina)) {
+                    korisnikTemp = k;
+                    break;
+                }
+            }
+            sb.append(tempIme);
             sb.append(" ");
-            sb.append(k.getPrezime());
+            sb.append(tempPrezime);
+            sb.append(" ");
+            sb.append(tempOdsek);
+            sb.append(" ");
+            sb.append(tempGodina);
+
+            // TODO: javiti nekako demonstratoru za novi lab
             flag = true;
         }
         noviLab.setDemonstratori(sb.toString());
-        
+
         session.save(noviLab);
         session.getTransaction().commit();
         session.close();
+
+        unosLabSourceDemonstratori.clear();
+        unosLabDemonstratori.getSource().clear();
+        unosLabDemonstratori.getTarget().clear();
+        datum_od = null;
+        datum_do = null;
+        noviLab = new Lab();
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Uspesno dodata lab vezba", "Lab vezba dodata"));
     }
 
     public String toArhiva() {
@@ -253,7 +290,7 @@ public class Nastavnik {
         labovi = new ArrayList<>();
         List<Lab> temp_labovi = new ArrayList<>();
 
-        Query query_lab = session.createQuery("from Lab");
+        Query query_lab = session.createQuery("from Lab where zakljuceno = 1");
         temp_labovi = query_lab.list();
 
         for (Lab l : temp_labovi) {
@@ -270,9 +307,145 @@ public class Nastavnik {
         return "nastavnikArhivaLab?faces-redirect=true";
     }
 
+    public String toZakljuciLab() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        labovi = new ArrayList<>();
+        List<Lab> temp_labovi = new ArrayList<>();
+
+        Query query_lab = session.createQuery("from Lab where zakljuceno = 0");
+        temp_labovi = query_lab.list();
+
+        for (Lab l : temp_labovi) {
+            for (String s : source) {
+                if (l.getPredmet().equals(s)) {
+                    labovi.add(l);
+                    break;
+                }
+            }
+        }
+
+        session.close();
+        return "nastavnikZakljuciLab?faces-redirect=true";
+    }
+
+    public String toZakljuciLabEdit(Lab lab) {
+        zakljucivanjeLabEdit = lab;
+        datum_od = lab.getVreme_od();
+        datum_do = lab.getVreme_do();
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        Query q = session.createQuery("from Korisnik k, Angazovanje a where tip = :t and k.id = a.id_korisnik");
+        q.setParameter("t", "Demonstrator");
+        Iterator<Object> iter = q.list().iterator();
+
+        Query qu = session.createQuery("from Predmet p where p.akronim = '" + lab.getPredmet() + "'");
+
+        Predmet p = (Predmet) qu.list().get(0);
+        List<String> sourceKor = new ArrayList<>();
+        List<String> targetKor = new ArrayList<>();
+
+        unosLabSourceDemonstratori = new ArrayList<>();
+        unosLabDemonstratori = new DualListModel<>();
+
+        while (iter.hasNext()) {
+            Object[] obj = (Object[]) iter.next();
+            Korisnik k = (Korisnik) obj[0];
+            Angazovanje ang = (Angazovanje) obj[1];
+            if (ang.getId_predmet() == p.getId()) {
+                unosLabSourceDemonstratori.add(k);
+                String s = k.getIme() + " " + k.getPrezime() + " " + k.getOdsek() + " " + k.getGodina() + ". godina";
+                sourceKor.add(s);
+            }
+        }
+
+        String[] niz = lab.getDemonstratori().split(",");
+        for (int i = 0; i < niz.length; i++) {
+            for (String ss : sourceKor) {
+                if (ss.contains(niz[i])) {
+                    targetKor.add(ss);
+                    sourceKor.remove(ss);
+                    break;
+                }
+            }
+        }
+
+        unosLabDemonstratori.setSource(sourceKor);
+        unosLabDemonstratori.setTarget(targetKor);
+        session.close();
+        return "nastavnikZakljuciLabEdit?faces-redirect=true";
+    }
+
+    public void zakljuciLab(Lab lab) {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+        lab.setZakljuceno(1);
+        session.update(lab);
+        session.getTransaction().commit();
+        session.close();
+
+        labovi.remove(lab);
+    }
+
+    public String zakljuciLab() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+        zakljucivanjeLabEdit.setVreme_od(new Timestamp(datum_od.getTime()));
+        zakljucivanjeLabEdit.setVreme_do(new Timestamp(datum_do.getTime()));
+        List<String> temp = unosLabDemonstratori.getTarget();
+//        session.get
+        StringBuilder sb = new StringBuilder();
+        boolean flag = false;
+        for (String s : temp) {
+            if (flag) {
+                sb.append(",");
+            }
+            String[] niz = s.split(" ");
+            String tempIme = niz[0];
+            String tempPrezime = niz[1];
+            String tempOdsek = niz[2];
+            String tempGodina = niz[3];
+            Korisnik korisnikTemp;
+            for (Korisnik k : unosLabSourceDemonstratori) {
+                if (k.getIme().equals(tempIme) && k.getPrezime().equals(tempPrezime) && k.getOdsek().equals(tempOdsek) && k.getGodina().equals(tempGodina)) {
+                    korisnikTemp = k;
+                    break;
+                }
+            }
+            sb.append(tempIme);
+            sb.append(" ");
+            sb.append(tempPrezime);
+            sb.append(" ");
+            sb.append(tempOdsek);
+            sb.append(" ");
+            sb.append(tempGodina);
+
+            // TODO: javiti nekako demonstratoru za novi lab
+            flag = true;
+        }
+        zakljucivanjeLabEdit.setDemonstratori(sb.toString());
+        zakljucivanjeLabEdit.setZakljuceno(1);
+        session.update(zakljucivanjeLabEdit);
+        session.getTransaction().commit();
+        session.close();
+        return toZakljuciLab();
+    }
+
     public String toDetaljnije(Korisnik kor) {
         demonstrator = kor;
         return "nastavnikDemonstratorDetalji?faces-redirect=true";
+    }
+
+    public String toDodajDemonstratora() {
+        dodajDemonstratoraLista = new ArrayList<>();
+        return "nastavnikDodajDemonstratora?faces-redirect=true";
+    }
+    
+    public void dodajDemonstratoraUpdateLista(){
+        
+        dodajDemonstratoraLista.add("bla");
     }
 
     public List<Korisnik> getLista() {
@@ -379,11 +552,11 @@ public class Nastavnik {
         this.tipoviAktivnosti = tipoviAktivnosti;
     }
 
-    public DualListModel<Korisnik> getUnosLabDemonstratori() {
+    public DualListModel<String> getUnosLabDemonstratori() {
         return unosLabDemonstratori;
     }
 
-    public void setUnosLabDemonstratori(DualListModel<Korisnik> unosLabDemonstratori) {
+    public void setUnosLabDemonstratori(DualListModel<String> unosLabDemonstratori) {
         this.unosLabDemonstratori = unosLabDemonstratori;
     }
 
@@ -403,4 +576,29 @@ public class Nastavnik {
         this.datum_do = datum_do;
     }
 
+    public Lab getZakljucivanjeLabEdit() {
+        return zakljucivanjeLabEdit;
+    }
+
+    public void setZakljucivanjeLabEdit(Lab zakljucivanjeLabEdit) {
+        this.zakljucivanjeLabEdit = zakljucivanjeLabEdit;
+    }
+
+    public String getNovDemonstratorPredmet() {
+        return novDemonstratorPredmet;
+    }
+
+    public void setNovDemonstratorPredmet(String novDemonstratorPredmet) {
+        this.novDemonstratorPredmet = novDemonstratorPredmet;
+    }
+
+    public List<String> getDodajDemonstratoraLista() {
+        return dodajDemonstratoraLista;
+    }
+
+    public void setDodajDemonstratoraLista(List<String> dodajDemonstratoraLista) {
+        this.dodajDemonstratoraLista = dodajDemonstratoraLista;
+    }
+    
+    
 }
