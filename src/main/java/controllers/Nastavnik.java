@@ -9,6 +9,7 @@ import DB.Angazovanje;
 import DB.DBFactory;
 import DB.Korisnik;
 import DB.Lab;
+import DB.LabAktivnost;
 import DB.Predmet;
 import DB.Tip_aktivnosti;
 import java.sql.Timestamp;
@@ -46,10 +47,11 @@ public class Nastavnik {
     private List<String> tipoviAktivnosti;
 
     private Lab zakljucivanjeLabEdit;
-    
+
     private String novDemonstratorPredmet;
     private String novDemonstratorIme;
     private List<String> dodajDemonstratoraLista;
+    private List<Korisnik> dodajDemonstratoraListaSvih;
 
     private Lab noviLab;
     private Date datum_od, datum_do;
@@ -250,9 +252,9 @@ public class Nastavnik {
             String tempPrezime = niz[1];
             String tempOdsek = niz[2];
             String tempGodina = niz[3];
-            Korisnik korisnikTemp;
+            Korisnik korisnikTemp = null;
             for (Korisnik k : unosLabSourceDemonstratori) {
-                if (k.getIme().equals(tempIme) && k.getPrezime().equals(tempPrezime) && k.getOdsek().equals(tempOdsek) && k.getGodina().equals(tempGodina)) {
+                if (k.getIme().equals(tempIme) && k.getPrezime().equals(tempPrezime) && k.getOdsek().equals(tempOdsek)) {
                     korisnikTemp = k;
                     break;
                 }
@@ -266,6 +268,11 @@ public class Nastavnik {
             sb.append(tempGodina);
 
             // TODO: javiti nekako demonstratoru za novi lab
+            LabAktivnost l = new LabAktivnost();
+            l.setId_lab(noviLab.getId());
+            l.setId_kor(korisnikTemp.getId());
+            session.save(l);
+
             flag = true;
         }
         noviLab.setDemonstratori(sb.toString());
@@ -409,7 +416,7 @@ public class Nastavnik {
             String tempGodina = niz[3];
             Korisnik korisnikTemp;
             for (Korisnik k : unosLabSourceDemonstratori) {
-                if (k.getIme().equals(tempIme) && k.getPrezime().equals(tempPrezime) && k.getOdsek().equals(tempOdsek) && k.getGodina().equals(tempGodina)) {
+                if (k.getIme().equals(tempIme) && k.getPrezime().equals(tempPrezime) && k.getOdsek().equals(tempOdsek)) {
                     korisnikTemp = k;
                     break;
                 }
@@ -440,12 +447,79 @@ public class Nastavnik {
 
     public String toDodajDemonstratora() {
         dodajDemonstratoraLista = new ArrayList<>();
+        dodajDemonstratoraListaSvih = new ArrayList<>();
         return "nastavnikDodajDemonstratora?faces-redirect=true";
     }
-    
-    public void dodajDemonstratoraUpdateLista(){
-        
-        dodajDemonstratoraLista.add("bla");
+
+    public void dodajDemonstratoraUpdateLista() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        dodajDemonstratoraLista.clear();
+
+        Query q = session.createQuery("from Korisnik where tip = :t");
+        q.setParameter("t", "Demonstrator");
+        List<Korisnik> sviKorisnici = q.list();
+
+        Query qu = session.createQuery("from Angazovanje a, Predmet p where p.id = a.id_predmet and p.akronim = '" + novDemonstratorPredmet + "'");
+        Iterator<Object> iterator = qu.list().iterator();
+
+        List<Angazovanje> angazovanje = new ArrayList<>();
+        while (iterator.hasNext()) {
+            Object[] obj = (Object[]) iterator.next();
+            Angazovanje ang = (Angazovanje) obj[0];
+            Predmet p = (Predmet) obj[1];
+            angazovanje.add(ang);
+        }
+
+        for (Korisnik k : sviKorisnici) {
+            boolean flag = true;
+            for (Angazovanje ang : angazovanje) {
+                if (k.getId() == ang.getId_korisnik()) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) {
+                dodajDemonstratoraListaSvih.add(k);
+                String s = k.getIme() + " " + k.getPrezime() + " " + k.getOdsek() + " " + k.getGodina() + ". godina";
+                dodajDemonstratoraLista.add(s);
+            }
+        }
+        session.close();
+    }
+
+    public void dodajDemonstratora() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        String[] niz = novDemonstratorIme.split(" ");
+        String tempIme = niz[0];
+        String tempPrezime = niz[1];
+        String tempOdsek = niz[2];
+        String tempGodina = niz[3];
+        Korisnik korisnikTemp = null;
+        for (Korisnik k : dodajDemonstratoraListaSvih) {
+            if (k.getIme().equals(tempIme) && k.getPrezime().equals(tempPrezime) && k.getOdsek().equals(tempOdsek)) {
+                korisnikTemp = k;
+                break;
+            }
+        }
+
+        Query q = session.createQuery("from Predmet where akronim = '" + novDemonstratorPredmet + "'");
+        Predmet p = (Predmet) q.list().get(0);
+
+        Angazovanje a = new Angazovanje();
+        a.setId_korisnik(korisnikTemp.getId());
+        a.setId_predmet(p.getId());
+
+        session.save(a);
+        session.getTransaction().commit();
+
+        session.close();
+
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Uspesno dodat demonstrator", "Demonstrator dodat"));
+        dodajDemonstratoraLista.remove(novDemonstratorIme);
     }
 
     public List<Korisnik> getLista() {
@@ -599,6 +673,13 @@ public class Nastavnik {
     public void setDodajDemonstratoraLista(List<String> dodajDemonstratoraLista) {
         this.dodajDemonstratoraLista = dodajDemonstratoraLista;
     }
-    
-    
+
+    public String getNovDemonstratorIme() {
+        return novDemonstratorIme;
+    }
+
+    public void setNovDemonstratorIme(String novDemonstratorIme) {
+        this.novDemonstratorIme = novDemonstratorIme;
+    }
+
 }

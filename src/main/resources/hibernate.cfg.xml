@@ -16,6 +16,7 @@
         <mapping class="DB.Angazovanje"/>
         <mapping class="DB.Tip_aktivnosti"/>
         <mapping class="DB.Lab"/>
+        <mapping class="DB.LabAktivnost"/>
     
     </session-factory>
 </hibernate-configuration>

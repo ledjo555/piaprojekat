@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+
+        <ui:composition template="/commons/template.xhtml">
+            <ui:define name="content">
+
+                <div id="nastavnikHomeSearch">
+                    <h:form id="lista">
+                        <p:dataTable var="lab" value="#{demonstrator.noviLabAktivnostListaLab}" paginator="true" rows="7" paginatorPosition="bottom">
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Predmet" />
+                                </f:facet>
+                                <h:outputText value="#{lab.predmet}" />
+                            </p:column>
+                            <p:column width="120">
+                                <f:facet name="header">
+                                    <h:outputText value="Naziv laba" />
+                                </f:facet>
+                                <h:outputText value="#{lab.naziv_lab}" />
+                            </p:column>
+                            <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Vreme od" />
+                                </f:facet>
+                                <h:outputText value="#{lab.vreme_od}" />
+                            </p:column>
+                            <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Vreme do" />
+                                </f:facet>
+                                <h:outputText value="#{lab.vreme_do}" />
+                            </p:column>
+                            <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Mesto" />
+                                </f:facet>
+                                <h:outputText value="#{lab.mesto_lab}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Tip aktivnosti" />
+                                </f:facet>
+                                <h:outputText value="#{lab.tip}" />
+                            </p:column>
+                            <p:column style="width:32px">
+                                <p:commandButton 
+                                    icon="ui-icon ui-icon-check" value="Potvrdi" action="#{demonstrator.potvrdiNoviLab(lab)}" update=":lista">
+                                </p:commandButton>
+                            </p:column>
+                            <p:column style="width:32px">
+                                <p:commandButton 
+                                    icon="ui-icon ui-icon-cancel" value="Otkazi"
+                                    onclick="dlg2.show();"
+                                    action="#{demonstrator.setLabOtkazi(lab)}"
+                                    >
+                                </p:commandButton>
+                            </p:column>
+
+                        </p:dataTable>  
+
+                        <p:dialog header="Komentar o otkazivanju" widgetVar="dlg2" modal="true" height="300">
+                            <h:panelGrid columns="1" cellpadding="20">
+                            <p:inputTextarea rows="10" cols="50" value="#{demonstrator.noviLabKomentar}"  />
+                            <p:commandButton 
+                                icon="ui-icon ui-icon-check" value="Potvrdi" action="#{demonstrator.otkaziNoviLab()}" update=":lista">
+                            </p:commandButton>
+                            </h:panelGrid>
+                        </p:dialog> 
+
+                    </h:form>
+                </div>
+            </ui:define> 
+        </ui:composition>
+
+    </h:body>
+
+</html>

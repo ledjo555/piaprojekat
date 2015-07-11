@@ -12,9 +12,41 @@
         <ui:composition template="/commons/template.xhtml">
             <ui:define name="content">
 
-                <div id="center">
-                    <h:form>
-                        <h:panelGrid columns="2" cellpadding="10">
+                <div id="nastavnikHomeCenter">
+                    <h:form id="lista">
+                        <p:dataTable var="predmet" value="#{demonstrator.listaPredmeta}" paginator="true" rows="5" paginatorPosition="bottom">
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Akronim" />
+                                </f:facet>
+                                <h:outputText value="#{predmet.akronim}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Naziv" />
+                                </f:facet>
+                                <h:outputText value="#{predmet.naziv}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Semestar" />
+                                </f:facet>
+                                <h:outputText value="#{predmet.semestar}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Godina" />
+                                </f:facet>
+                                <h:outputText value="#{predmet.godina}" />
+                            </p:column>
+
+                        </p:dataTable>  
+                    </h:form>
+                </div>
+                <div id="nastavnikHomeSearch">
+                    <h:form id="search">
+                         <h:panelGrid columns="2" cellpadding="10">
                             <h:outputLabel value="Ime: " />
                             <h:outputLabel value="#{login.korisnik.ime}" />
 
@@ -32,7 +64,7 @@
                         </h:panelGrid>
                     </h:form>
                 </div>
-            </ui:define>
+            </ui:define> 
         </ui:composition>
 
     </h:body>

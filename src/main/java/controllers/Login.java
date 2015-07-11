@@ -73,6 +73,7 @@ public class Login {
         context.getExternalContext().getSessionMap().put("user", korisnik);
 
         if (korisnik.getTip().equals("Demonstrator")) {
+            
             return "restricted/demonstrator?faces-redirect=true";
         } else if (korisnik.getTip().equals("Nastavnik")) {
             return "restricted/nastavnik?faces-redirect=true";

@@ -25,14 +25,14 @@
                             
                             <h:outputLabel value="Demonstrator: " />
                             <h:panelGrid id="demoni">
-                            <p:selectOneMenu value="#{nastavnik.noviLab.predmet}" required="true"  >
+                                <p:selectOneMenu value="#{nastavnik.novDemonstratorIme}" required="true"  >
                                 <f:selectItem itemLabel="Izaberite demonstratora" itemValue="" />
                                 <f:selectItems value="#{nastavnik.dodajDemonstratoraLista}" />
                             </p:selectOneMenu>
                         </h:panelGrid>
 
                         </h:panelGrid>
-                        <p:commandButton ajax="false" value="Dodaj demonstratora" action="#{nastavnik.napraviLab()}" />
+                        <p:commandButton ajax="false" value="Dodaj demonstratora" action="#{nastavnik.dodajDemonstratora()}" />
 
                         <!--</h:form>-->
                     </div>
