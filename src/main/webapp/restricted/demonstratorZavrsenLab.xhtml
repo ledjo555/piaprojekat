@@ -58,12 +58,6 @@
                                     <h:outputText value="Isplata" />
                                 </f:facet>
                                 <h:outputText value="#{lab.labAktivnost.isplata}" />
-                                <c:if test="#{lab.labAktivnost.isplata eq 1}">
-                                <h:outputText value="Isplaceno" />
-                                </c:if>
-                                <c:if test="#{lab.labAktivnost.isplata eq 0}">
-                                <h:outputText value="Nije isplaceno" />
-                                </c:if>
                             </p:column>
 
                         </p:dataTable>  

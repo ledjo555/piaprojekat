@@ -21,13 +21,14 @@
                     <p:megaMenu>
                         <c:if test="#{login.korisnik.tip eq 'Demonstrator'}">
                         <p:menuitem value="Pocetna" url="demonstrator.xhtml" />
-                        <p:menuitem value="Novi lab" action="#{demonstrator.toNoviLab}" />
+                        <p:menuitem value="Novi angazovanje" action="#{demonstrator.toNoviLab}" />
                         <p:menuitem value="Zavrseni lab" action="#{demonstrator.toZavrsenLab()}"/>
-                        <p:menuitem value="Dodaj demonstratora" action="#{nastavnik.toDodajDemonstratora()}"/>
+                        <p:menuitem value="Isplata" action="#{demonstrator.toIsplata()}"/>
+                        <p:menuitem value="Prijava" action="#{demonstrator.toPrijava()}"/>
                         </c:if>
                         <c:if test="#{login.korisnik.tip eq 'Nastavnik'}">
                         <p:menuitem value="Pocetna" url="nastavnik.xhtml" />
-                        <p:menuitem value="Novi laba" action="#{nastavnik.toUnosLab}" />
+                        <p:menuitem value="Novi lab" action="#{nastavnik.toUnosLab}" />
                         <p:menuitem value="Zakljuci lab" action="#{nastavnik.toZakljuciLab}" />
                         <p:menuitem value="Arhiva lab" action="#{nastavnik.toArhiva}"/>
                         <p:menuitem value="Dodaj demonstratora" action="#{nastavnik.toDodajDemonstratora()}"/>

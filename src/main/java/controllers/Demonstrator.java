@@ -11,6 +11,7 @@ import DB.Lab;
 import DB.LabAktivnost;
 import DB.Predmet;
 import DB.ZakljuceniLab;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -94,7 +95,81 @@ public class Demonstrator {
         }
 
         session.close();
+
+        izbaciPoklapanja();
+
         return "demonstratorNoviLab?faces-redirect=true";
+    }
+
+    private void izbaciPoklapanja() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        List<LabAktivnost> tempLabAktivnostLista = new ArrayList<>();
+        List<Lab> tempLabAktivnostListaLab = new ArrayList<>();
+
+        Query q = session.createQuery("from LabAktivnost where id_kor = '" + demonstrator.getId() + "' and potvrdjeno = 1");
+        tempLabAktivnostLista = q.list();
+
+        Query qu = session.createQuery("from Lab where zakljuceno = 0");
+        List<Lab> tempLabLista = qu.list();
+
+        for (Lab l : tempLabLista) {
+            boolean flag = false;
+            for (LabAktivnost la : tempLabAktivnostLista) {
+                if (la.getId_lab() == l.getId()) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                tempLabAktivnostListaLab.add(l);
+            }
+        }
+
+        for (Lab l : tempLabAktivnostListaLab) {
+            String[] niz = l.getDemonstratori().split(",");
+            if (niz.length >= l.getMax_br()) {
+                tempLabAktivnostListaLab.remove(l);
+            }
+        }
+
+        List<Lab> tempLab = new ArrayList<>();
+        
+        for (Lab lab : noviLabAktivnostListaLab) {
+            boolean flag = false;
+            for (Lab l : tempLabAktivnostListaLab) {
+                boolean provera = proveriVreme(l.getVreme_od(), l.getVreme_do(), lab.getVreme_od(), lab.getVreme_do());
+                if (!provera) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag) {
+                tempLab.add(lab);
+            }
+        }
+        
+        noviLabAktivnostListaLab = tempLab;
+
+        session.close();
+    }
+
+    private boolean proveriVreme(Timestamp vreme_od1, Timestamp vreme_do1, Timestamp vreme_od2, Timestamp vreme_do2) {
+        boolean flag = true;
+        if (vreme_od2.after(vreme_od1) && vreme_od2.before(vreme_do1)) {
+            flag = false;
+        }
+        if (vreme_do2.after(vreme_od1) && vreme_do2.before(vreme_do1)) {
+            flag = false;
+        }
+        if (vreme_od2.before(vreme_od1) && vreme_do2.after(vreme_do1)) {
+            flag = false;
+        }
+        if (vreme_od1.equals(vreme_od2) || vreme_do1.equals(vreme_do2)) {
+            flag = false;
+        }
+        return flag;
     }
 
     public void potvrdiNoviLab(Lab l) {
@@ -112,8 +187,8 @@ public class Demonstrator {
         tempLabAktivnost.setPotvrdjeno(1);
         session.update(tempLabAktivnost);
         session.getTransaction().commit();
-        noviLabAktivnostListaLab.remove(l);
-        session.close();
+        toNoviLab();
+//        session.close();
     }
 
     public void setLabOtkazi(Lab l) {
@@ -132,7 +207,7 @@ public class Demonstrator {
                 break;
             }
         }
-        tempLabAktivnost.setPotvrdjeno(1);
+        tempLabAktivnost.setPotvrdjeno(2);
         tempLabAktivnost.setKomentar(noviLabKomentar);
         session.update(tempLabAktivnost);
         session.getTransaction().commit();
@@ -179,6 +254,14 @@ public class Demonstrator {
 
         session.close();
         return "demonstratorZavrsenLab?faces-redirect=true";
+    }
+    
+    public String toIsplata(){
+        return "demonstratorIsplata?faces-redirect=true";
+    }
+    
+    public String toPrijava(){
+        return "demonstratorPrijava?faces-redirect=true";
     }
 
     public List<Predmet> getListaPredmeta() {

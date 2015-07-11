@@ -28,11 +28,11 @@ public class LabAktivnost implements Serializable {
     private int id_lab;
     private int id_kor;
     private int potvrdjeno;
-    private int isplata;
+    private String isplata;
     private String komentar;
 
     public LabAktivnost() {
-        isplata = 0;
+        isplata = "Nije isplaceno";
         potvrdjeno = 0;
     }
 
@@ -60,11 +60,11 @@ public class LabAktivnost implements Serializable {
         this.id_kor = id_kor;
     }
 
-    public int getIsplata() {
+    public String getIsplata() {
         return isplata;
     }
 
-    public void setIsplata(int isplata) {
+    public void setIsplata(String isplata) {
         this.isplata = isplata;
     }
 
@@ -84,5 +84,4 @@ public class LabAktivnost implements Serializable {
         this.potvrdjeno = potvrdjeno;
     }
 
-    
 }
