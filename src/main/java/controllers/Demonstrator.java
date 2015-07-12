@@ -6,10 +6,12 @@
 package controllers;
 
 import DB.DBFactory;
+import DB.Isplata;
 import DB.Korisnik;
 import DB.Lab;
 import DB.LabAktivnost;
 import DB.Predmet;
+import DB.Prijava;
 import DB.ZakljuceniLab;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -35,9 +37,13 @@ public class Demonstrator {
     private List<Lab> noviLabAktivnostListaLab;
     private String noviLabKomentar;
     private Lab labZaBrisanje;
+    
+    private List<Isplata> sveIsplate;
 
     private List<Predmet> listaPredmeta;
     private List<ZakljuceniLab> zakljuceniLabovi;
+
+    private List<Predmet> prijavaPredmeti;
 
     public Demonstrator() {
         session = DBFactory.getSessionFactory().openSession();
@@ -135,7 +141,7 @@ public class Demonstrator {
         }
 
         List<Lab> tempLab = new ArrayList<>();
-        
+
         for (Lab lab : noviLabAktivnostListaLab) {
             boolean flag = false;
             for (Lab l : tempLabAktivnostListaLab) {
@@ -149,7 +155,7 @@ public class Demonstrator {
                 tempLab.add(lab);
             }
         }
-        
+
         noviLabAktivnostListaLab = tempLab;
 
         session.close();
@@ -255,13 +261,59 @@ public class Demonstrator {
         session.close();
         return "demonstratorZavrsenLab?faces-redirect=true";
     }
-    
-    public String toIsplata(){
+
+    public String toIsplata() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+        
+        Query q = session.createQuery("from Isplata where id_kor = '" + demonstrator.getId() + "'");
+        sveIsplate = q.list();
+
+        session.close();
         return "demonstratorIsplata?faces-redirect=true";
     }
-    
-    public String toPrijava(){
+
+    public String toPrijava() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        Query q = session.createQuery("from Predmet where zakljucan = 0");
+        prijavaPredmeti = q.list();
+
+        Query qu = session.createQuery("from Prijava where id_kor = '" + demonstrator.getId() + "'");
+        List<Prijava> tempPrijava = qu.list();
+
+        for (Predmet p : prijavaPredmeti) {
+            boolean flag = false;
+            for (Prijava prijava : tempPrijava) {
+                if (prijava.getId_predmet() == p.getId()) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                prijavaPredmeti.remove(p);
+            }
+        }
+
+        session.close();
         return "demonstratorPrijava?faces-redirect=true";
+    }
+
+    public void prijavaPredmeta(Predmet p) {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        Prijava prijava = new Prijava();
+        prijava.setId_predmet(p.getId());
+        prijava.setId_kor(demonstrator.getId());
+
+        session.save(prijava);
+        session.getTransaction().commit();
+
+        prijavaPredmeti.remove(p);
+
+        session.close();
     }
 
     public List<Predmet> getListaPredmeta() {
@@ -296,4 +348,21 @@ public class Demonstrator {
         this.zakljuceniLabovi = zakljuceniLabovi;
     }
 
+    public List<Predmet> getPrijavaPredmeti() {
+        return prijavaPredmeti;
+    }
+
+    public void setPrijavaPredmeti(List<Predmet> prijavaPredmeti) {
+        this.prijavaPredmeti = prijavaPredmeti;
+    }
+
+    public List<Isplata> getSveIsplate() {
+        return sveIsplate;
+    }
+
+    public void setSveIsplate(List<Isplata> sveIsplate) {
+        this.sveIsplate = sveIsplate;
+    }
+
+    
 }

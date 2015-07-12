@@ -7,13 +7,19 @@ package controllers;
 
 import DB.Angazovanje;
 import DB.DBFactory;
+import DB.Isplata;
 import DB.Korisnik;
+import DB.KorisnikLabBean;
+import DB.Lab;
+import DB.LabAktivnost;
 import DB.Predmet;
+import DB.Tip_aktivnosti;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.faces.application.FacesMessage;
@@ -48,6 +54,11 @@ public class Administrator {
     private List<String> listaPredmetaString;
     private String postaviNastavnikaIme;
     private String postaviNastavnikaPredmet;
+
+    private List<KorisnikLabBean> korisnikLab;
+     private List<Isplata> sveIsplate;
+
+    private Date datum_od, datum_do;
 
     private Predmet novPredmet;
 
@@ -265,6 +276,160 @@ public class Administrator {
         session.close();
     }
 
+    public String toZatvoriPrijave() {
+        return "administratorZatvoriPrijave?faces-redirect=true";
+    }
+
+    public void zatvoriPrijave() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        Query q = session.createQuery("from Predmet where zakljucan = 0");
+        List<Predmet> temp = q.list();
+
+        for (Predmet p : temp) {
+            p.setZakljucan(1);
+            session.update(p);
+        }
+
+        session.getTransaction().commit();
+
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Prijave uspesno zatvorene.", "Prijave uspesno zatvorene."));
+
+        session.close();
+    }
+
+    public String toObracun() {
+        korisnikLab = new ArrayList<>();
+        datum_od = null;
+        datum_do = null;
+        return "administratorIsplata?faces-redirect=true";
+    }
+
+    public void updateListaObracun() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+        
+        korisnikLab.clear();
+
+        Query q = session.createQuery("from Lab where zakljuceno = 1");
+        List<Lab> tempLab = q.list();
+        List<Lab> tempLab2 = new ArrayList<>();
+
+        for (Lab l : tempLab) {
+            boolean flag = false;
+            if (l.getVreme_od().after(datum_od) && l.getVreme_do().before(datum_do)) {
+                flag = true;
+            }
+            if (flag) {
+                tempLab2.add(l);
+            }
+        }
+
+        Query qu = session.createQuery("from Korisnik k, LabAktivnost a where k.id = a.id_kor and a.potvrdjeno = 3");
+        Iterator<Object> iter = qu.list().iterator();
+
+        while (iter.hasNext()) {
+            Object[] obj = (Object[]) iter.next();
+            Korisnik k = (Korisnik) obj[0];
+            LabAktivnost ang = (LabAktivnost) obj[1];
+            Lab lab = null;
+            boolean flag = false;
+            for(Lab l: tempLab2){
+                if(ang.getId_lab() == l.getId()){
+                    lab = l;
+                    flag = true;
+                    break;
+                }
+            }
+            if(flag){
+                KorisnikLabBean korLab = new KorisnikLabBean();
+                korLab.setK(k);
+                korLab.setL(lab);
+                korisnikLab.add(korLab);
+            }
+        }
+
+        session.close();
+    }
+    
+    public String obracunaj(){
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+        
+        Query q = session.createQuery("from LabAktivnost");
+        List<LabAktivnost> labAktivnost = q.list();
+        List<LabAktivnost> labAktivnost2 = new ArrayList<>();
+        
+        for(LabAktivnost la:labAktivnost){
+            boolean flag = false;
+            for(KorisnikLabBean kb: korisnikLab){
+                Lab l = kb.getL();
+                if(la.getId_lab() == l.getId() && kb.getK().getId() == la.getId_kor()){
+                    flag = true;
+                    break;
+                }
+            }
+            if(flag){
+                labAktivnost2.add(la);
+            }
+        }
+        
+        for(LabAktivnost la:labAktivnost2){
+            la.setIsplata("Isplaceno");
+            session.update(la);
+        }
+        
+        Query query = session.createQuery("from Tip_aktivnosti");
+        List<Tip_aktivnosti> tempTip = query.list();
+        
+        for(KorisnikLabBean kb: korisnikLab){
+                Lab l = kb.getL();
+                Korisnik k = kb.getK();
+                Isplata isplata = new Isplata();
+                
+                isplata.setId_kor(k.getId());
+                isplata.setVreme_od(l.getVreme_od());
+                isplata.setVreme_do(l.getVreme_do());
+                
+                double suma = 0;
+                
+                double koeficijent;
+                
+                for(Tip_aktivnosti t: tempTip){
+                    if(t.getNaziv().equals(l.getTip())){
+                        koeficijent = t.getKoeficijent();
+                        break;
+                    }
+                }
+                
+                long vreme = l.getVreme_do().getTime() - l.getVreme_od().getTime();
+                double res = vreme/1000/45;
+                
+                suma = res*10;
+                
+                isplata.setSuma(suma);
+                session.save(isplata);
+            }
+        
+        session.getTransaction().commit();
+        session.close();
+        return "administratorObracuni?faces-redirect=true";
+    }
+    
+    public String toIsplate(){
+        
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+        
+        Query q = session.createQuery("from Isplata");
+        sveIsplate = q.list();
+
+        session.close();
+        
+        return "administratorObracuni?faces-redirect=true";
+    }
+
     public Korisnik getKorisnik() {
         return korisnik;
     }
@@ -353,4 +518,37 @@ public class Administrator {
         this.postaviNastavnikaPredmet = postaviNastavnikaPredmet;
     }
 
+    public Date getDatum_od() {
+        return datum_od;
+    }
+
+    public void setDatum_od(Date datum_od) {
+        this.datum_od = datum_od;
+    }
+
+    public Date getDatum_do() {
+        return datum_do;
+    }
+
+    public void setDatum_do(Date datum_do) {
+        this.datum_do = datum_do;
+    }
+
+    public List<KorisnikLabBean> getKorisnikLab() {
+        return korisnikLab;
+    }
+
+    public void setKorisnikLab(List<KorisnikLabBean> korisnikLab) {
+        this.korisnikLab = korisnikLab;
+    }
+
+    public List<Isplata> getSveIsplate() {
+        return sveIsplate;
+    }
+
+    public void setSveIsplate(List<Isplata> sveIsplate) {
+        this.sveIsplate = sveIsplate;
+    }
+
+    
 }

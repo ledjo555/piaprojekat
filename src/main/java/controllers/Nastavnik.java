@@ -11,6 +11,8 @@ import DB.Korisnik;
 import DB.Lab;
 import DB.LabAktivnost;
 import DB.Predmet;
+import DB.Prijava;
+import DB.PrijavaBean;
 import DB.Tip_aktivnosti;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -52,6 +54,8 @@ public class Nastavnik {
     private String novDemonstratorIme;
     private List<String> dodajDemonstratoraLista;
     private List<Korisnik> dodajDemonstratoraListaSvih;
+
+    private List<PrijavaBean> prijavaBean;
 
     private Lab noviLab;
     private Date datum_od, datum_do;
@@ -238,6 +242,12 @@ public class Nastavnik {
 
         noviLab.setVreme_od(new Timestamp(datum_od.getTime()));
         noviLab.setVreme_do(new Timestamp(datum_do.getTime()));
+        
+        Query query = session.createQuery("from Lab");
+        List<Lab> tempLab = query.list();
+        
+        int idNovogLaba = tempLab.get(tempLab.size()-1).getId();
+        idNovogLaba++;
 
         List<String> temp = unosLabDemonstratori.getTarget();
 //        session.get
@@ -269,7 +279,7 @@ public class Nastavnik {
 
             // TODO: javiti nekako demonstratoru za novi lab
             LabAktivnost l = new LabAktivnost();
-            l.setId_lab(noviLab.getId());
+            l.setId_lab(idNovogLaba);
             l.setId_kor(korisnikTemp.getId());
             session.save(l);
 
@@ -402,7 +412,10 @@ public class Nastavnik {
         zakljucivanjeLabEdit.setVreme_od(new Timestamp(datum_od.getTime()));
         zakljucivanjeLabEdit.setVreme_do(new Timestamp(datum_do.getTime()));
         List<String> temp = unosLabDemonstratori.getTarget();
-//        session.get
+
+        Query q = session.createQuery("from LabAktivnost where id_lab = '" + zakljucivanjeLabEdit.getId() + "'");
+        List<LabAktivnost> tempLabAktivnost = q.list();
+        
         StringBuilder sb = new StringBuilder();
         boolean flag = false;
         for (String s : temp) {
@@ -414,7 +427,7 @@ public class Nastavnik {
             String tempPrezime = niz[1];
             String tempOdsek = niz[2];
             String tempGodina = niz[3];
-            Korisnik korisnikTemp;
+            Korisnik korisnikTemp = null;
             for (Korisnik k : unosLabSourceDemonstratori) {
                 if (k.getIme().equals(tempIme) && k.getPrezime().equals(tempPrezime) && k.getOdsek().equals(tempOdsek)) {
                     korisnikTemp = k;
@@ -429,7 +442,12 @@ public class Nastavnik {
             sb.append(" ");
             sb.append(tempGodina);
 
-            // TODO: javiti nekako demonstratoru za novi lab
+            for(LabAktivnost la: tempLabAktivnost){
+                if(korisnikTemp != null && la.getId_kor() == korisnikTemp.getId()){
+                    la.setPotvrdjeno(3);
+                    session.update(la);
+                }
+            }
             flag = true;
         }
         zakljucivanjeLabEdit.setDemonstratori(sb.toString());
@@ -520,6 +538,98 @@ public class Nastavnik {
 
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Uspesno dodat demonstrator", "Demonstrator dodat"));
         dodajDemonstratoraLista.remove(novDemonstratorIme);
+    }
+
+    public String toPrijava() {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        prijavaBean = new ArrayList<>();
+        List<Prijava> tempPrijava = new ArrayList<>();
+        List<Korisnik> tempKorisnici = new ArrayList<>();
+        List<Predmet> tempPredmeti = new ArrayList<>();
+        List<Predmet> tempPredmeti2 = new ArrayList<>();
+
+        Query q = session.createQuery("from Prijava p, Predmet pr where p.id_predmet = pr.id and pr.zakljucan = 0");
+        if (q.list().isEmpty()) {
+            return "nastavnikPrijava?faces-redirect=true";
+        }
+        Iterator<Object> iterator = q.list().iterator();
+
+        Query qu = session.createQuery("from Prijava p, Korisnik k where p.id_kor = k.id");
+        Iterator<Object> iter = qu.list().iterator();
+
+        while (iterator.hasNext()) {
+            Object[] obj = (Object[]) iterator.next();
+            Prijava p = (Prijava) obj[0];
+            Predmet pr = (Predmet) obj[1];
+            boolean flag = false;
+            for (String s : source) {
+                if (s.equals(pr.getAkronim())) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                tempPrijava.add(p);
+            }
+        }
+
+        while (iter.hasNext()) {
+            Object[] obj = (Object[]) iter.next();
+            Prijava p = (Prijava) obj[0];
+            Korisnik k = (Korisnik) obj[1];
+            boolean flag = false;
+            for (Prijava prijava : tempPrijava) {
+                if (prijava.getId() == p.getId()) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                tempKorisnici.add(k);
+            }
+        }
+
+        Query que = session.createQuery("from Predmet where zakljucan = 0");
+        tempPredmeti = que.list();
+        for (Prijava p : tempPrijava) {
+            for (Predmet predmet : tempPredmeti) {
+                if (predmet.getId() == p.getId_predmet()) {
+                    tempPredmeti2.add(predmet);
+                }
+            }
+        }
+
+        for (int i = 0; i < tempKorisnici.size(); i++) {
+            PrijavaBean p = new PrijavaBean();
+            p.setK(tempKorisnici.get(i));
+            p.setP(tempPredmeti2.get(i));
+            prijavaBean.add(p);
+        }
+
+        session.close();
+        return "nastavnikPrijava?faces-redirect=true";
+    }
+
+    public void prijavaPotvrda(PrijavaBean p) {
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        Angazovanje a = new Angazovanje();
+        a.setId_korisnik(p.getK().getId());
+        a.setId_predmet(p.getP().getId());
+
+        session.save(a);
+        session.getTransaction().commit();
+
+        prijavaBean.remove(p);
+
+        session.close();
+    }
+
+    public void prijavaOtkaz(PrijavaBean p) {
+        prijavaBean.remove(p);
     }
 
     public List<Korisnik> getLista() {
@@ -680,6 +790,14 @@ public class Nastavnik {
 
     public void setNovDemonstratorIme(String novDemonstratorIme) {
         this.novDemonstratorIme = novDemonstratorIme;
+    }
+
+    public List<PrijavaBean> getPrijavaBean() {
+        return prijavaBean;
+    }
+
+    public void setPrijavaBean(List<PrijavaBean> prijavaBean) {
+        this.prijavaBean = prijavaBean;
     }
 
 }

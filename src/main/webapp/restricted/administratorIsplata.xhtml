@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+
+        <ui:composition template="/commons/template.xhtml">
+            <ui:define name="content">
+
+                <div id="nastavnikHomeCenter">
+                    <h:form id="lista">
+                        <p:dataTable var="dem" value="#{administrator.korisnikLab}" paginator="true" rows="5" paginatorPosition="bottom">
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Ime" />
+                                </f:facet>
+                                <h:outputText value="#{dem.k.ime}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Prezime" />
+                                </f:facet>
+                                <h:outputText value="#{dem.k.prezime}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Predmet" />
+                                </f:facet>
+                                <h:outputText value="#{dem.l.predmet}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Naziv laba" />
+                                </f:facet>
+                                <h:outputText value="#{dem.l.naziv_lab}" />
+                            </p:column>
+                            <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Vreme od" />
+                                </f:facet>
+                                <h:outputText value="#{dem.l.vreme_od}" />
+                            </p:column>
+                            <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Vreme do" />
+                                </f:facet>
+                                <h:outputText value="#{dem.l.vreme_do}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Tip vezbe" />
+                                </f:facet>
+                                <h:outputText value="#{dem.l.tip}" />
+                            </p:column>
+                        </p:dataTable>  
+                    </h:form>
+                </div>
+                <div id="nastavnikHomeSearch">
+                    <h:form id="search">
+                        <h:panelGrid id="prviPanel" columns="2" cellspacing="10">
+                            <h:outputLabel value="Datum i vreme od: " />
+                            <p:calendar pattern="dd/MM/yyyy HH:mm:ss" value="#{administrator.datum_od}" required="true" />
+
+                            <h:outputLabel value="Datum i vreme do: " />
+                            <p:calendar pattern="dd/MM/yyyy HH:mm:ss" value="#{administrator.datum_do}"  required="true"/>
+
+                            <p:commandButton ajax="false" action="#{administrator.updateListaObracun()}" value="Filter" update=":lista"/>
+                            <p:commandButton ajax="false" action="#{administrator.obracunaj()}" value="Obracunaj" update=":lista"/>
+                        </h:panelGrid>
+                    </h:form>
+                </div>
+            </ui:define> 
+        </ui:composition>
+
+    </h:body>
+
+</html>

@@ -30,6 +30,7 @@ public class Predmet implements Serializable {
     private String naziv;
     private String semestar;
     private String godina;
+    private int zakljucan;
 
     public Predmet() {
         akronim = "";
@@ -77,5 +78,14 @@ public class Predmet implements Serializable {
     public void setGodina(String godina) {
         this.godina = godina;
     }
+
+    public int getZakljucan() {
+        return zakljucan;
+    }
+
+    public void setZakljucan(int zakljucan) {
+        this.zakljucan = zakljucan;
+    }
+    
 
 }

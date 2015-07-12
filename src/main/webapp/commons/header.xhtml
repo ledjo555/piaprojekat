@@ -31,13 +31,17 @@
                         <p:menuitem value="Novi lab" action="#{nastavnik.toUnosLab}" />
                         <p:menuitem value="Zakljuci lab" action="#{nastavnik.toZakljuciLab}" />
                         <p:menuitem value="Arhiva lab" action="#{nastavnik.toArhiva}"/>
+                        <p:menuitem value="Prijava demonstratora" action="#{nastavnik.toPrijava}"/>
                         <p:menuitem value="Dodaj demonstratora" action="#{nastavnik.toDodajDemonstratora()}"/>
                         </c:if>
                          <c:if test="#{login.korisnik.tip eq 'Administrator'}">
-                        <p:menuitem value="Pocetna" url="administrator.xhtml" />
-                        <p:menuitem value="Dodaj korisnika" action="#{administrator.toRegistracija()}" />
+                        <p:menuitem value="Odobri korisnika" url="administrator.xhtml" />
+                        <p:menuitem value="Dodaj novog korisnika" action="#{administrator.toRegistracija()}" />
                         <p:menuitem value="Dodaj predmet" action="#{administrator.toDodajPredmet()}" />
                         <p:menuitem value="Postavi nastavnika" action="#{administrator.toPostaviNastavnika()}" />
+                        <p:menuitem value="Obracunaj" action="#{administrator.toObracun()}" />
+                        <p:menuitem value="Isplate" action="#{administrator.toIsplate()}" />
+                        <p:menuitem value="Zatvori prijave" action="#{administrator.toZatvoriPrijave()}" />
                         </c:if>
                     </p:megaMenu>
                         </h:form>

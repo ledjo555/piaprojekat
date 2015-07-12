@@ -1,16 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>TODO supply a title</title>
-        <meta name="viewport" content="width=device-width"/>
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+
+        <ui:composition template="/commons/template.xhtml">
+            <ui:define name="content">
+
+                <div id="nastavnikHomeSearch">
+                    <h:form id="lista">
+                        <p:dataTable var="predmet" value="#{demonstrator.prijavaPredmeti}" paginator="true" rows="7" paginatorPosition="bottom">
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Akronim" />
+                                </f:facet>
+                                <h:outputText value="#{predmet.akronim}" />
+                            </p:column>
+                            <p:column width="120">
+                                <f:facet name="header">
+                                    <h:outputText value="Naziv" />
+                                </f:facet>
+                                <h:outputText value="#{predmet.naziv}" />
+                            </p:column>
+                            <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Semestar" />
+                                </f:facet>
+                                <h:outputText value="#{predmet.semestar}" />
+                            </p:column>
+                            <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Godina" />
+                                </f:facet>
+                                <h:outputText value="#{predmet.godina}" />
+                            </p:column>
+                            <p:column style="width:32px">
+                                <p:commandButton 
+                                    icon="ui-icon ui-icon-check" value="Prijava" action="#{demonstrator.prijavaPredmeta(predmet)}" update=":lista">
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>  
+                    </h:form>
+                </div>
+            </ui:define> 
+        </ui:composition>
+
+    </h:body>
+
 </html>
