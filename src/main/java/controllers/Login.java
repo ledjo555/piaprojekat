@@ -119,6 +119,10 @@ public class Login {
 
         korisnik.setPassword(encryptedString);
         try {
+            if (file.getSize() > 1000000) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Picture must me 1mb or less.", "Contact admin."));
+                return "";
+            }
             Blob blob = new SerialBlob(file.getContents());
         } catch (SQLException ex) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Cant upload picture", "Contact admin."));

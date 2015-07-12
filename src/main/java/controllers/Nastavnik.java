@@ -138,7 +138,9 @@ public class Nastavnik {
                     }
                 }
                 if (flag) {
-                    lista.add(k);
+                    if (!lista.contains(k)) {
+                        lista.add(k);
+                    }
                 }
             }
 
@@ -184,7 +186,9 @@ public class Nastavnik {
                     }
                 }
                 if (flag) {
-                    lista.add(k);
+                    if (!lista.contains(k)) {
+                        lista.add(k);
+                    }
                 }
             }
         }
