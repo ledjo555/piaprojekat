@@ -33,6 +33,12 @@
                         <p:menuitem value="Arhiva lab" action="#{nastavnik.toArhiva}"/>
                         <p:menuitem value="Dodaj demonstratora" action="#{nastavnik.toDodajDemonstratora()}"/>
                         </c:if>
+                         <c:if test="#{login.korisnik.tip eq 'Administrator'}">
+                        <p:menuitem value="Pocetna" url="administrator.xhtml" />
+                        <p:menuitem value="Dodaj korisnika" action="#{administrator.toRegistracija()}" />
+                        <p:menuitem value="Dodaj predmet" action="#{administrator.toDodajPredmet()}" />
+                        <p:menuitem value="Postavi nastavnika" action="#{administrator.toPostaviNastavnika()}" />
+                        </c:if>
                     </p:megaMenu>
                         </h:form>
                 </div>

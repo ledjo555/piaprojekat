@@ -32,6 +32,10 @@ public class Predmet implements Serializable {
     private String godina;
 
     public Predmet() {
+        akronim = "";
+        naziv = "";
+        semestar = "";
+        godina = "";
     }
 
     public int getId() {

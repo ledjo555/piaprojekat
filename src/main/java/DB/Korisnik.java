@@ -39,7 +39,7 @@ public class Korisnik implements Serializable {
         odsek = "";
         godina = "";
         prosek = "";
-        tip = "Demonstrator";
+        tip = "Nastavnik";
     }
 
     public int getId() {

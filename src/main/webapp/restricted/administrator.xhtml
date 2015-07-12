@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+
+        <ui:composition template="/commons/template.xhtml">
+            <ui:define name="content">
+
+                <div id="nastavnikHomeSearch">
+                    <h:form id="lista">
+                        <p:dataTable var="kor" value="#{administrator.listaKorisnika}" paginator="true" rows="7" paginatorPosition="bottom">
+                            
+                             <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Username" />
+                                </f:facet>
+                                 <h:outputText value="#{kor.username}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Ime" />
+                                </f:facet>
+                                <h:outputText value="#{kor.ime}" />
+                            </p:column>
+                            <p:column width="120">
+                                <f:facet name="header">
+                                    <h:outputText value="Prezime" />
+                                </f:facet>
+                                <h:outputText value="#{kor.prezime}" />
+                            </p:column>
+                            <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Telefon" />
+                                </f:facet>
+                                <h:outputText value="#{kor.email}" />
+                            </p:column>
+                            <p:column width="100">
+                                <f:facet name="header">
+                                    <h:outputText value="Tip" />
+                                </f:facet>
+                                <h:outputText value="#{kor.tip}" />
+                            </p:column>
+                            <p:column style="width:32px">
+                                <p:commandButton 
+                                    icon="ui-icon ui-icon-check" value="odobri" action="#{administrator.dodajKorisnika(kor)}" update=":lista">
+                                </p:commandButton>
+                            </p:column>
+                            <p:column style="width:32px">
+                                <p:commandButton 
+                                    icon="ui-icon ui-icon-cancel" value="ukloni" action="#{administrator.ukloniKorisnika(kor)}">
+                                </p:commandButton>
+                            </p:column>
+                            
+                            
+                        </p:dataTable>  
+                    </h:form>
+                </div>
+            </ui:define> 
+        </ui:composition>
+
+    </h:body>
+
+</html>

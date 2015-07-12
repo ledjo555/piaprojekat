@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+    <h:body>
+
+        <ui:composition template="/commons/template.xhtml">
+            <ui:define name="content">
+
+                <div id="center">
+                    <h:form id="forma" enctype="multipart/form-data">
+                        <p:messages globalOnly="true"/>
+                        <h:panelGrid columns="2" cellpadding="5" >
+
+                            <h:outputLabel for="akronim" value="Akronim:"/>
+                            <p:inputText id="akronim" required="true"  value="#{administrator.novPredmet.akronim}"/>
+
+                            <h:outputLabel for="naziv" value="Naziv:"/>
+                            <p:inputText  id="naziv" required="true" value="#{administrator.novPredmet.naziv}"/>
+
+                            <h:outputLabel for="semestar" value="Semestar:"/>
+                            <p:inputText id="semestar" required="true" value="#{administrator.novPredmet.semestar}"/>
+
+                            <h:outputLabel for="godina" value="Godina:"/>
+                            <p:inputText id="godina" required="true" value="#{administrator.novPredmet.godina}"/>
+                            <p:commandButton ajax="false" value="Dodaj" action="#{administrator.dodajPredmet()}" />
+                        </h:panelGrid>
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+
+</html>

@@ -31,6 +31,10 @@ public class AuthenticationFilter implements Filter {
       lista.put("nastavnikUnosLab.xhtml",new String[] {"Nastavnik"});
       lista.put("nastavnikZakljuciLab.xhtml",new String[] {"Nastavnik"});
       lista.put("nastavnikZakljuciLabEdit.xhtml",new String[] {"Nastavnik"});
+      lista.put("administrator.xhtml",new String[] {"Administrator"});
+      lista.put("administratorRegistracija.xhtml",new String[] {"Administrator"});
+      lista.put("administratorDodajPredmet.xhtml",new String[] {"Administrator"});
+      lista.put("administratorPostaviNastavnika.xhtml",new String[] {"Administrator"});
   }
 
   @Override
