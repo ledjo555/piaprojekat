@@ -119,6 +119,19 @@ body {
     margin: auto;
 }
 
+#detalji{
+    width: 600px;
+    height: 100px;
+    position: absolute;
+    top:0;
+    bottom: 50%;
+    left: 0;
+    right: 50%;
+    font-size: large;
+
+    margin: auto;
+}
+
 #slika{
     height: 10px;
     width: 10px

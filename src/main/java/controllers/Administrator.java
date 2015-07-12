@@ -14,6 +14,8 @@ import DB.Lab;
 import DB.LabAktivnost;
 import DB.Predmet;
 import DB.Tip_aktivnosti;
+import java.io.File;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Blob;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -56,7 +59,7 @@ public class Administrator {
     private String postaviNastavnikaPredmet;
 
     private List<KorisnikLabBean> korisnikLab;
-     private List<Isplata> sveIsplate;
+    private List<Isplata> sveIsplate;
 
     private Date datum_od, datum_do;
 
@@ -309,7 +312,7 @@ public class Administrator {
     public void updateListaObracun() {
         session = DBFactory.getSessionFactory().openSession();
         session.beginTransaction();
-        
+
         korisnikLab.clear();
 
         Query q = session.createQuery("from Lab where zakljuceno = 1");
@@ -335,14 +338,14 @@ public class Administrator {
             LabAktivnost ang = (LabAktivnost) obj[1];
             Lab lab = null;
             boolean flag = false;
-            for(Lab l: tempLab2){
-                if(ang.getId_lab() == l.getId()){
+            for (Lab l : tempLab2) {
+                if (ang.getId_lab() == l.getId()) {
                     lab = l;
                     flag = true;
                     break;
                 }
             }
-            if(flag){
+            if (flag) {
                 KorisnikLabBean korLab = new KorisnikLabBean();
                 korLab.setK(k);
                 korLab.setL(lab);
@@ -352,81 +355,105 @@ public class Administrator {
 
         session.close();
     }
-    
-    public String obracunaj(){
+
+    public String obracunaj() {
         session = DBFactory.getSessionFactory().openSession();
         session.beginTransaction();
-        
+
         Query q = session.createQuery("from LabAktivnost");
         List<LabAktivnost> labAktivnost = q.list();
         List<LabAktivnost> labAktivnost2 = new ArrayList<>();
-        
-        for(LabAktivnost la:labAktivnost){
+
+        for (LabAktivnost la : labAktivnost) {
             boolean flag = false;
-            for(KorisnikLabBean kb: korisnikLab){
+            for (KorisnikLabBean kb : korisnikLab) {
                 Lab l = kb.getL();
-                if(la.getId_lab() == l.getId() && kb.getK().getId() == la.getId_kor()){
+                if (la.getId_lab() == l.getId() && kb.getK().getId() == la.getId_kor()) {
                     flag = true;
                     break;
                 }
             }
-            if(flag){
+            if (flag) {
                 labAktivnost2.add(la);
             }
         }
-        
-        for(LabAktivnost la:labAktivnost2){
+
+        for (LabAktivnost la : labAktivnost2) {
             la.setIsplata("Isplaceno");
             session.update(la);
         }
-        
+
         Query query = session.createQuery("from Tip_aktivnosti");
         List<Tip_aktivnosti> tempTip = query.list();
-        
-        for(KorisnikLabBean kb: korisnikLab){
-                Lab l = kb.getL();
-                Korisnik k = kb.getK();
-                Isplata isplata = new Isplata();
-                
-                isplata.setId_kor(k.getId());
-                isplata.setVreme_od(l.getVreme_od());
-                isplata.setVreme_do(l.getVreme_do());
-                
-                double suma = 0;
-                
-                double koeficijent;
-                
-                for(Tip_aktivnosti t: tempTip){
-                    if(t.getNaziv().equals(l.getTip())){
-                        koeficijent = t.getKoeficijent();
-                        break;
-                    }
+
+        for (KorisnikLabBean kb : korisnikLab) {
+            Lab l = kb.getL();
+            Korisnik k = kb.getK();
+            Isplata isplata = new Isplata();
+
+            isplata.setId_kor(k.getId());
+            isplata.setVreme_od(l.getVreme_od());
+            isplata.setVreme_do(l.getVreme_do());
+
+            double suma = 0;
+
+            double koeficijent = 1;
+
+            for (Tip_aktivnosti t : tempTip) {
+                if (t.getNaziv().equals(l.getTip())) {
+                    koeficijent = t.getKoeficijent();
+                    break;
                 }
-                
-                long vreme = l.getVreme_do().getTime() - l.getVreme_od().getTime();
-                double res = vreme/1000/45;
-                
-                suma = res*10;
-                
-                isplata.setSuma(suma);
-                session.save(isplata);
             }
-        
+
+            long vreme = l.getVreme_do().getTime() - l.getVreme_od().getTime();
+            double res = vreme / 1000 / 45 * koeficijent;
+
+            
+
+            StringBuilder result = new StringBuilder("");
+
+            //Get file from resources folder
+            ClassLoader classLoader = getClass().getClassLoader();
+            File file = new File(classLoader.getResource("cena.txt").getFile());
+
+            try (Scanner scanner = new Scanner(file)) {
+
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
+                    result.append(line).append("\n");
+                }
+
+                scanner.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+            String tempKonst = result.toString();
+            double konst = Double.valueOf(tempKonst);
+            
+            suma = res * konst;
+
+            isplata.setSuma(suma);
+            session.save(isplata);
+        }
+
         session.getTransaction().commit();
         session.close();
         return "administratorObracuni?faces-redirect=true";
     }
-    
-    public String toIsplate(){
-        
+
+    public String toIsplate() {
+
         session = DBFactory.getSessionFactory().openSession();
         session.beginTransaction();
-        
+
         Query q = session.createQuery("from Isplata");
         sveIsplate = q.list();
 
         session.close();
-        
+
         return "administratorObracuni?faces-redirect=true";
     }
 
@@ -550,5 +577,4 @@ public class Administrator {
         this.sveIsplate = sveIsplate;
     }
 
-    
 }

@@ -39,6 +39,7 @@ public class AuthenticationFilter implements Filter {
       lista.put("administratorZatvoriPrijave.xhtml",new String[] {"Administrator"});
       lista.put("administratorIsplata.xhtml",new String[] {"Administrator"});
       lista.put("administratorObracuni.xhtml",new String[] {"Administrator"});
+      lista.put("detalji.xhtml",new String[] {"Administrator", "Nastavnik", "Demonstrator"});
   }
 
   @Override

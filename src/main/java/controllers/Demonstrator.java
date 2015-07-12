@@ -37,7 +37,7 @@ public class Demonstrator {
     private List<Lab> noviLabAktivnostListaLab;
     private String noviLabKomentar;
     private Lab labZaBrisanje;
-    
+
     private List<Isplata> sveIsplate;
 
     private List<Predmet> listaPredmeta;
@@ -265,7 +265,7 @@ public class Demonstrator {
     public String toIsplata() {
         session = DBFactory.getSessionFactory().openSession();
         session.beginTransaction();
-        
+
         Query q = session.createQuery("from Isplata where id_kor = '" + demonstrator.getId() + "'");
         sveIsplate = q.list();
 
@@ -278,12 +278,13 @@ public class Demonstrator {
         session.beginTransaction();
 
         Query q = session.createQuery("from Predmet where zakljucan = 0");
+        List<Predmet> tempPrijavaPredmeti = q.list();
         prijavaPredmeti = q.list();
 
         Query qu = session.createQuery("from Prijava where id_kor = '" + demonstrator.getId() + "'");
         List<Prijava> tempPrijava = qu.list();
 
-        for (Predmet p : prijavaPredmeti) {
+        for (Predmet p : tempPrijavaPredmeti) {
             boolean flag = false;
             for (Prijava prijava : tempPrijava) {
                 if (prijava.getId_predmet() == p.getId()) {
@@ -364,5 +365,4 @@ public class Demonstrator {
         this.sveIsplate = sveIsplate;
     }
 
-    
 }

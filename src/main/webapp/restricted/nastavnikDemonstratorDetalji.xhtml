@@ -1,16 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>TODO supply a title</title>
-        <meta name="viewport" content="width=device-width"/>
-    </head>
-    <body>
-        #{nastavnik.demonstrator.ime}
-    </body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+
+        <ui:composition template="/commons/template.xhtml">
+            <ui:define name="content">
+
+                <div id="nastavnikHomeCenter">
+                    <h:form id="lista">
+                        <p:dataTable var="lab" value="#{nastavnik.demonDetaljiLista}" paginator="true" rows="5" paginatorPosition="bottom">
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Akronim" />
+                                </f:facet>
+                                <h:outputText value="#{lab.predmet}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Naziv" />
+                                </f:facet>
+                                <h:outputText value="#{lab.naziv_lab}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Vreme od" />
+                                </f:facet>
+                                <h:outputText value="#{lab.vreme_od}" />
+                            </p:column>
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Vreme do" />
+                                </f:facet>
+                                <h:outputText value="#{lab.vreme_do}" />
+                            </p:column>
+                             <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Tip" />
+                                </f:facet>
+                                 <h:outputText value="#{lab.tip}" />
+                            </p:column>
+
+                        </p:dataTable>  
+                    </h:form>
+                </div>
+                <div id="nastavnikHomeSearch">
+                    <h:form id="search">
+                         <h:panelGrid columns="2" cellpadding="10">
+                            <h:outputLabel value="Ime: " />
+                            <h:outputLabel value="#{nastavnik.demonstrator.ime}" />
+
+                            <h:outputLabel value="Prezime: " />
+                            <h:outputLabel value="#{nastavnik.demonstrator.prezime}" />
+
+                            <h:outputLabel value="Telefon: " />
+                            <h:outputLabel value="#{nastavnik.demonstrator.telefon}" />
+
+                            <h:outputLabel value="Email: " />
+                            <h:outputLabel value="#{nastavnik.demonstrator.email}" />
+
+                            <h:outputLabel value="Slika: " />
+                            <p:graphicImage width="150" height="150" value="#{nastavnik.slika}" />
+                        </h:panelGrid>
+                    </h:form>
+                </div>
+            </ui:define> 
+        </ui:composition>
+
+    </h:body>
+
 </html>

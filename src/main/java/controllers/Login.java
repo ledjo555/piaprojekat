@@ -11,6 +11,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Blob;
+import java.sql.SQLException;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -20,6 +22,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.sql.rowset.serial.SerialBlob;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
@@ -107,6 +110,7 @@ public class Login {
             InternetAddress emailAddr = new InternetAddress(korisnik.getEmail());
             emailAddr.validate();
         } catch (AddressException ex) {
+            korisnik = null;
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Email not in correct form", "Contact admin."));
             return "";
         }
@@ -114,12 +118,12 @@ public class Login {
         String encryptedString = digestPassword(korisnik.getPassword());
 
         korisnik.setPassword(encryptedString);
-//        try {
-//            Blob blob = new SerialBlob(file.getContents());
-//        } catch (SQLException ex) {
-//            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Cant upload picture", "Contact admin."));
-//            return "";
-//        }
+        try {
+            Blob blob = new SerialBlob(file.getContents());
+        } catch (SQLException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Cant upload picture", "Contact admin."));
+            return "";
+        }
         korisnik.setSlika(file.getContents());
 
         session.save(korisnik);
@@ -181,6 +185,10 @@ public class Login {
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Uspesno ste se izlogovali", "User logout."));
         return "/faces/index?faces-redirect=true";
+    }
+
+    public String toDetalji() {
+        return "detalji?faces-redirect=true";
     }
 
     public String getUsername() {

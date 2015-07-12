@@ -14,6 +14,8 @@ import DB.Predmet;
 import DB.Prijava;
 import DB.PrijavaBean;
 import DB.Tip_aktivnosti;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,9 +25,12 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.event.PhaseId;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DualListModel;
+import org.primefaces.model.StreamedContent;
 
 /**
  *
@@ -47,6 +52,10 @@ public class Nastavnik {
 
     private String izabranPredmetLab;
     private List<String> tipoviAktivnosti;
+
+    private StreamedContent slika;
+
+    private List<Lab> demonDetaljiLista;
 
     private Lab zakljucivanjeLabEdit;
 
@@ -242,11 +251,11 @@ public class Nastavnik {
 
         noviLab.setVreme_od(new Timestamp(datum_od.getTime()));
         noviLab.setVreme_do(new Timestamp(datum_do.getTime()));
-        
+
         Query query = session.createQuery("from Lab");
         List<Lab> tempLab = query.list();
-        
-        int idNovogLaba = tempLab.get(tempLab.size()-1).getId();
+
+        int idNovogLaba = tempLab.get(tempLab.size() - 1).getId();
         idNovogLaba++;
 
         List<String> temp = unosLabDemonstratori.getTarget();
@@ -415,7 +424,7 @@ public class Nastavnik {
 
         Query q = session.createQuery("from LabAktivnost where id_lab = '" + zakljucivanjeLabEdit.getId() + "'");
         List<LabAktivnost> tempLabAktivnost = q.list();
-        
+
         StringBuilder sb = new StringBuilder();
         boolean flag = false;
         for (String s : temp) {
@@ -442,8 +451,8 @@ public class Nastavnik {
             sb.append(" ");
             sb.append(tempGodina);
 
-            for(LabAktivnost la: tempLabAktivnost){
-                if(korisnikTemp != null && la.getId_kor() == korisnikTemp.getId()){
+            for (LabAktivnost la : tempLabAktivnost) {
+                if (korisnikTemp != null && la.getId_kor() == korisnikTemp.getId()) {
                     la.setPotvrdjeno(3);
                     session.update(la);
                 }
@@ -460,6 +469,23 @@ public class Nastavnik {
 
     public String toDetaljnije(Korisnik kor) {
         demonstrator = kor;
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        Query q = session.createQuery("from Lab l, LabAktivnost la where la.id_lab = l.id and la.id_kor = '" + demonstrator.getId() + "' and la.potvrdjeno = 3");
+        Iterator<Object> iter = q.list().iterator();
+
+        demonDetaljiLista = new ArrayList<>();
+
+        while (iter.hasNext()) {
+            Object[] obj = (Object[]) iter.next();
+            Lab l = (Lab) obj[0];
+            LabAktivnost la = (LabAktivnost) obj[1];
+            demonDetaljiLista.add(l);
+        }
+
+        session.close();
+
         return "nastavnikDemonstratorDetalji?faces-redirect=true";
     }
 
@@ -550,7 +576,7 @@ public class Nastavnik {
         List<Predmet> tempPredmeti = new ArrayList<>();
         List<Predmet> tempPredmeti2 = new ArrayList<>();
 
-        Query q = session.createQuery("from Prijava p, Predmet pr where p.id_predmet = pr.id and pr.zakljucan = 0");
+        Query q = session.createQuery("from Prijava p, Predmet pr where p.id_predmet = pr.id and pr.zakljucan = 1");
         if (q.list().isEmpty()) {
             return "nastavnikPrijava?faces-redirect=true";
         }
@@ -591,8 +617,9 @@ public class Nastavnik {
             }
         }
 
-        Query que = session.createQuery("from Predmet where zakljucan = 0");
+        Query que = session.createQuery("from Predmet where zakljucan = 1");
         tempPredmeti = que.list();
+        List<PrijavaBean> tempPrijavaBean = new ArrayList<>();
         for (Prijava p : tempPrijava) {
             for (Predmet predmet : tempPredmeti) {
                 if (predmet.getId() == p.getId_predmet()) {
@@ -605,7 +632,26 @@ public class Nastavnik {
             PrijavaBean p = new PrijavaBean();
             p.setK(tempKorisnici.get(i));
             p.setP(tempPredmeti2.get(i));
-            prijavaBean.add(p);
+//            prijavaBean.add(p);
+            tempPrijavaBean.add(p);
+        }
+
+        Query query = session.createQuery("from Prijava where zahtev = 0");
+        List<Prijava> listaPrijava = query.list();
+
+        for (PrijavaBean pb : tempPrijavaBean) {
+            boolean flag = false;
+            Predmet pr = pb.getP();
+            Korisnik k = pb.getK();
+            for (Prijava p : listaPrijava) {
+                if (k.getId() == p.getId_kor() && pr.getId() == p.getId_predmet()) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                prijavaBean.add(pb);
+            }
         }
 
         session.close();
@@ -620,6 +666,22 @@ public class Nastavnik {
         a.setId_korisnik(p.getK().getId());
         a.setId_predmet(p.getP().getId());
 
+        Query query = session.createQuery("from Prijava where zahtev = 0");
+        List<Prijava> listaPrijava = query.list();
+
+        Predmet pr = p.getP();
+        Korisnik k = p.getK();
+        Prijava tempPrijava = null;
+        for (Prijava prijava : listaPrijava) {
+            if (k.getId() == prijava.getId_kor() && pr.getId() == prijava.getId_predmet()) {
+                tempPrijava = prijava;
+                break;
+            }
+        }
+
+        tempPrijava.setZahtev(1);
+        session.update(tempPrijava);
+
         session.save(a);
         session.getTransaction().commit();
 
@@ -629,6 +691,29 @@ public class Nastavnik {
     }
 
     public void prijavaOtkaz(PrijavaBean p) {
+
+        session = DBFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        Query query = session.createQuery("from Prijava where zahtev = 0");
+        List<Prijava> listaPrijava = query.list();
+
+        Predmet pr = p.getP();
+        Korisnik k = p.getK();
+        Prijava tempPrijava = null;
+        for (Prijava prijava : listaPrijava) {
+            if (k.getId() == prijava.getId_kor() && pr.getId() == prijava.getId_predmet()) {
+                tempPrijava = prijava;
+                break;
+            }
+        }
+
+        tempPrijava.setZahtev(1);
+        session.update(tempPrijava);
+
+        session.getTransaction().commit();
+        session.close();
+
         prijavaBean.remove(p);
     }
 
@@ -698,6 +783,23 @@ public class Nastavnik {
 
     public String getSearchPrezime() {
         return searchPrezime;
+    }
+
+    public StreamedContent getSlika() throws IOException {
+        FacesContext context = FacesContext.getCurrentInstance();
+
+        if (context.getCurrentPhaseId() == PhaseId.RENDER_RESPONSE) {
+            // So, we're rendering the HTML. Return a stub StreamedContent so that it will generate right URL.
+            return new DefaultStreamedContent();
+        } else {
+            // So, browser is requesting the image. Return a real StreamedContent with the image bytes.
+//            String imageId = context.getExternalContext().getRequestParameterMap().get("imageId");
+            return new DefaultStreamedContent(new ByteArrayInputStream(demonstrator.getSlika()));
+        }
+    }
+
+    public void setSlika(StreamedContent slika) {
+        this.slika = slika;
     }
 
     public void setSearchPrezime(String searchPrezime) {
@@ -798,6 +900,14 @@ public class Nastavnik {
 
     public void setPrijavaBean(List<PrijavaBean> prijavaBean) {
         this.prijavaBean = prijavaBean;
+    }
+
+    public List<Lab> getDemonDetaljiLista() {
+        return demonDetaljiLista;
+    }
+
+    public void setDemonDetaljiLista(List<Lab> demonDetaljiLista) {
+        this.demonDetaljiLista = demonDetaljiLista;
     }
 
 }

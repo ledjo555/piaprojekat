@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+
+        <ui:composition template="/commons/template.xhtml">
+            <ui:define name="content">
+
+                
+                <div id="detalji">
+                    <h:form id="search">
+                         <h:panelGrid columns="2" cellpadding="10">
+                            <h:outputLabel value="Ime: " />
+                            <h:outputLabel value="#{login.korisnik.ime}" />
+
+                            <h:outputLabel value="Prezime: " />
+                            <h:outputLabel value="#{login.korisnik.prezime}" />
+
+                            <h:outputLabel value="Telefon: " />
+                            <h:outputLabel value="#{login.korisnik.telefon}" />
+
+                            <h:outputLabel value="Email: " />
+                            <h:outputLabel value="#{login.korisnik.email}" />
+
+                            <h:outputLabel value="Slika: " />
+                            <p:graphicImage width="150" height="150" value="#{login.slika}" />
+                        </h:panelGrid>
+                    </h:form>
+                </div>
+            </ui:define> 
+        </ui:composition>
+
+    </h:body>
+
+</html>

@@ -54,12 +54,12 @@
                             </p:column>
                             <p:column style="width:32px">
                                 <p:commandButton 
-                                    icon="ui-icon ui-icon-check" value="potvrdi" action="#{nastavnik.prijavaPotvrda(prijava)}" update=":lista">
+                                    icon="ui-icon ui-icon-check" value="potvrdi" action="#{nastavnik.prijavaPotvrda(prijava)}" ajax="false">
                                 </p:commandButton>
                             </p:column>
                             <p:column style="width:32px">
                                 <p:commandButton 
-                                    icon="ui-icon ui-icon-pencil" value="otkazi" action="#{nastavnik.prijavaOtkaz(prijava)}">
+                                    icon="ui-icon ui-icon-pencil" value="otkazi" action="#{nastavnik.prijavaOtkaz(prijava)}" ajax="false">
                                 </p:commandButton>
                             </p:column>
                             

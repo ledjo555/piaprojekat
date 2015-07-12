@@ -13,7 +13,7 @@
                 <div id ="headerText" >
 
                     <h:form>
-                        Logged in as #{login.korisnik.username} | <h:commandLink action="#{login.logout}" > Logout </h:commandLink>
+                        Logged in as <h:commandLink action="#{login.toDetalji()}" > #{login.korisnik.username} </h:commandLink> | <h:commandLink action="#{login.logout}" > Logout </h:commandLink>
                     </h:form>
                 </div>
                 <div id="headerMenu">
@@ -21,7 +21,7 @@
                     <p:megaMenu>
                         <c:if test="#{login.korisnik.tip eq 'Demonstrator'}">
                         <p:menuitem value="Pocetna" url="demonstrator.xhtml" />
-                        <p:menuitem value="Novi angazovanje" action="#{demonstrator.toNoviLab}" />
+                        <p:menuitem value="Novo angazovanje" action="#{demonstrator.toNoviLab}" />
                         <p:menuitem value="Zavrseni lab" action="#{demonstrator.toZavrsenLab()}"/>
                         <p:menuitem value="Isplata" action="#{demonstrator.toIsplata()}"/>
                         <p:menuitem value="Prijava" action="#{demonstrator.toPrijava()}"/>
