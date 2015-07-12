@@ -39,6 +39,7 @@ public class Lab implements Serializable {
     private int zakljuceno;
 
     public Lab() {
+        demonstratori = "";
         zakljuceno = 0;
     }
 

@@ -294,7 +294,7 @@ public class Nastavnik {
 
             flag = true;
         }
-        noviLab.setDemonstratori(sb.toString());
+//        noviLab.setDemonstratori(sb.toString());
 
         session.save(noviLab);
         session.getTransaction().commit();
@@ -387,13 +387,15 @@ public class Nastavnik {
             }
         }
 
-        String[] niz = lab.getDemonstratori().split(",");
-        for (int i = 0; i < niz.length; i++) {
-            for (String ss : sourceKor) {
-                if (ss.contains(niz[i])) {
-                    targetKor.add(ss);
-                    sourceKor.remove(ss);
-                    break;
+        if (!lab.getDemonstratori().isEmpty()) {
+            String[] niz = lab.getDemonstratori().split(",");
+            for (int i = 0; i < niz.length; i++) {
+                for (String ss : sourceKor) {
+                    if (ss.contains(niz[i])) {
+                        targetKor.add(ss);
+                        sourceKor.remove(ss);
+                        break;
+                    }
                 }
             }
         }

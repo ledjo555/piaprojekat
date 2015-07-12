@@ -407,7 +407,8 @@ public class Administrator {
             }
 
             long vreme = l.getVreme_do().getTime() - l.getVreme_od().getTime();
-            double res = vreme / 1000 / 45 * koeficijent;
+            double res = vreme /( 1000 *  60 * 45);
+            res *= koeficijent;
 
             
 

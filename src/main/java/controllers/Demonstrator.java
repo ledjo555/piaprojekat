@@ -73,6 +73,7 @@ public class Demonstrator {
 
         noviLabAktivnostLista = new ArrayList<>();
         noviLabAktivnostListaLab = new ArrayList<>();
+        List<Lab> tempLabAktivnost = new ArrayList<>();
 
         Query q = session.createQuery("from LabAktivnost where id_kor = '" + demonstrator.getId() + "' and potvrdjeno = 0");
         noviLabAktivnostLista = q.list();
@@ -90,10 +91,14 @@ public class Demonstrator {
             }
             if (flag) {
                 noviLabAktivnostListaLab.add(l);
+                tempLabAktivnost.add(l);
             }
         }
 
-        for (Lab l : noviLabAktivnostListaLab) {
+        for (Lab l : tempLabAktivnost) {
+            if(l.getDemonstratori().isEmpty()){
+                continue;
+            }
             String[] niz = l.getDemonstratori().split(",");
             if (niz.length >= l.getMax_br()) {
                 noviLabAktivnostListaLab.remove(l);
@@ -119,6 +124,7 @@ public class Demonstrator {
 
         Query qu = session.createQuery("from Lab where zakljuceno = 0");
         List<Lab> tempLabLista = qu.list();
+        List<Lab> tempp = new ArrayList<>();
 
         for (Lab l : tempLabLista) {
             boolean flag = false;
@@ -130,10 +136,12 @@ public class Demonstrator {
             }
             if (flag) {
                 tempLabAktivnostListaLab.add(l);
+                tempp.add(l);
             }
         }
 
-        for (Lab l : tempLabAktivnostListaLab) {
+        
+        for (Lab l : tempp) {
             String[] niz = l.getDemonstratori().split(",");
             if (niz.length >= l.getMax_br()) {
                 tempLabAktivnostListaLab.remove(l);
@@ -190,6 +198,17 @@ public class Demonstrator {
                 break;
             }
         }
+        String s = demonstrator.getIme() + " " + demonstrator.getPrezime() + " " + demonstrator.getOdsek() + " " + demonstrator.getGodina();
+        String b = l.getDemonstratori();
+        if (b.isEmpty()) {
+            l.setDemonstratori(s);
+        }
+        else {
+            b = b + "," + s;
+            l.setDemonstratori(b);
+        }
+        session.update(l);
+        
         tempLabAktivnost.setPotvrdjeno(1);
         session.update(tempLabAktivnost);
         session.getTransaction().commit();
@@ -226,7 +245,7 @@ public class Demonstrator {
         session = DBFactory.getSessionFactory().openSession();
         session.beginTransaction();
 
-        Query q = session.createQuery("from LabAktivnost where id_kor = '" + demonstrator.getId() + "'");
+        Query q = session.createQuery("from LabAktivnost where id_kor = '" + demonstrator.getId() + "' and potvrdjeno = 3");
         List<LabAktivnost> tempLabAktivnost = q.list();
 
         Query qu = session.createQuery("from Lab where zakljuceno = 1");
